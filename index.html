@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adamon - Financial App UI</title>
+    
+    <!-- Menggunakan Tailwind CSS untuk styling cepat dan modern --><script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Google: Inter --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Ikon dari FontAwesome --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Abu-abu muda untuk latar belakang desktop */
+        }
+        
+        /* Warna kustom sesuai gambar */
+        .bg-adamon-dark { background-color: #004d40; } /* Hijau Tua Header */
+        .text-adamon-dark { color: #004d40; }
+        .bg-adamon-green { background-color: #009688; } /* Hijau Aksen */
+        
+        /* Menyembunyikan scrollbar tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animasi fade in saat ganti tab */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+    <!-- Mobile Container Wrapper --><div class="w-full max-w-md bg-gray-50 h-screen shadow-2xl relative overflow-hidden flex flex-col">
+        
+        <!-- Header (Sticky) --><header class="bg-adamon-dark text-white p-5 pt-10 rounded-b-3xl shadow-md z-20 flex justify-between items-center relative">
+            <div class="flex items-center gap-2">
+                <div class="bg-yellow-400 p-1 rounded-full">
+                    <!-- Ikon/Mock Logo --><i class="fa-solid fa-skull text-adamon-dark text-xs"></i> 
+                </div>
+                <h1 class="font-bold text-lg tracking-wide">ADAMON</h1>
+            </div>
+            
+            <!-- TOMBOL HEADER SUDAH BISA DIPENCET --><div class="flex gap-4">
+                <!-- Tombol Pemberitahuan (Lonceng) --><button onclick="switchTab('notifications')" class="hover:text-yellow-400 cursor-pointer transition text-xl">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <!-- Tombol Menu (Bars) --><button onclick="switchTab('menu')" class="hover:text-yellow-400 cursor-pointer transition text-xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area (Scrollable) --><main class="flex-1 overflow-y-auto p-5 pb-24 no-scrollbar relative" id="main-content">
+            
+            <!-- SECTION 1: SMART BOOKKEEPING (Home) --><div id="tab-bookkeeping" class="fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Smart Bookkeeping</h2>
+                
+                <!-- Ilustrasi/Icon Besar --><div class="flex justify-center mb-6">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-clipboard-list text-5xl text-yellow-500"></i>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions --><h3 class="font-semibold text-gray-700 mb-3">Recent Transactions</h3>
+                <div class="space-y-3">
+                    <!-- Item 1: Utilities --><div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-100 p-2 rounded-full text-blue-600 w-10 h-10 flex items-center justify-center">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">Utilities</p>
+                                <p class="text-xs text-gray-400">Expense</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-red-500">-$150</span>
+                    </div>
+
+                    <!-- Item 2: Salary --><div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-green-100 p-2 rounded-full text-green-600 w-10 h-10 flex items-center justify-center">
+                                <i class="fa-solid fa-sack-dollar"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">Salary</p>
+                                <p class="text-xs text-gray-400">Income</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-green-600">+$2,500</span>
+                    </div>
+
+                    <!-- Item 3: Rent --><div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-red-100 p-2 rounded-full text-red-600 w-10 h-10 flex items-center justify-center">
+                                <i class="fa-solid fa-house"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">Rent</p>
+                                <p class="text-xs text-gray-400">Expense</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-red-500">-$1,200</span>
+                    </div>
+
+                    <!-- Item 4: Groceries (Ditambahkan dari mock-up) --><div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-yellow-100 p-2 rounded-full text-yellow-600 w-10 h-10 flex items-center justify-center">
+                                <i class="fa-solid fa-basket-shopping"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">Groceries</p>
+                                <p class="text-xs text-gray-400">Expense</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-red-500">-$250</span>
+                    </div>
+                    
+                    <!-- Recommendations Banner --><div class="mt-6 bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-start gap-2">
+                        <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                        <p class="text-xs text-blue-800">Keep credit utilization below 30% to improve your score next month.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: OVERVIEW FINANCIAL (Chart) --><div id="tab-financial" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Overview Financial</h2>
+                
+                <!-- Balance Card --><div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-gray-500 text-sm">Total Balance</p>
+                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">+22%</span>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">$34,500</h1>
+                    
+                    <!-- Mock Chart (SVG) --><div class="relative h-32 w-full">
+                        <!-- Garis Chart --><svg viewBox="0 0 100 40" class="w-full h-full drop-shadow-lg" preserveAspectRatio="none">
+                            <path d="M0,35 Q10,30 20,32 T40,25 T60,15 T80,20 T100,5" fill="none" stroke="#009688" stroke-width="2" />
+                            <!-- Area Gradient di bawah garis --><path d="M0,35 Q10,30 20,32 T40,25 T60,15 T80,20 T100,5 V40 H0 Z" fill="rgba(0, 150, 136, 0.1)" stroke="none" />
+                        </svg>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 mt-2">
+                        <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
+                    </div>
+                    
+                    <!-- Smart Bookkeeping Link --><div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-sm font-semibold text-adamon-dark">Smart Bookkeeping</span>
+                        <button onclick="switchTab('bookkeeping')" class="text-xs font-medium text-adamon-green hover:underline">View</button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid --><div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                        <p class="text-xs text-gray-500 mb-1">Income</p>
+                        <p class="text-lg font-bold text-gray-800">$16,500</p>
+                        <div class="w-full bg-gray-200 h-1 mt-2 rounded-full">
+                            <div class="bg-green-500 h-1 rounded-full" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                        <p class="text-xs text-gray-500 mb-1">Expenses</p>
+                        <p class="text-lg font-bold text-gray-800">$9,983</p>
+                         <div class="w-full bg-gray-200 h-1 mt-2 rounded-full">
+                            <div class="bg-orange-500 h-1 rounded-full" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: CREDIT SCORING (Card) --><div id="tab-credit" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Credit Scoring</h2>
+                
+                <!-- Gauge Card --><div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center mb-6">
+                    <p class="text-gray-500 text-sm mb-2">Total Score</p>
+                    
+                    <!-- CSS Gauge Simple (Semicircle) --><div class="relative w-40 h-20 overflow-hidden mb-2">
+                         <div class="w-40 h-40 rounded-full border-[15px] border-gray-200 absolute top-0 left-0"></div>
+                         <!-- Overlay dengan warna score 720/850 (84.7%) --><div class="w-40 h-40 rounded-full border-[15px] absolute top-0 left-0" 
+                              style="border-color: transparent transparent #004d40 #004d40; transform: rotate(140deg); transition: transform 0.5s;">
+                         </div>
+                    </div>
+                    <!-- Score Number --><h1 class="text-4xl font-bold text-gray-800 -mt-8 z-10">720</h1>
+                    
+                    <!-- Status Bar --><div class="flex w-full mt-4 gap-1">
+                        <div class="h-2 flex-1 bg-red-300 rounded-l-full"></div>
+                        <div class="h-2 flex-1 bg-yellow-300"></div>
+                        <div class="h-2 flex-1 bg-green-500 rounded-r-full relative">
+                            <!-- Indicator berada di sekitar 70-80% dari total bar --><div class="absolute -top-1 left-[70%] transform -translate-x-1/2 w-4 h-4 bg-white border-2 border-green-600 rounded-full shadow-md"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between w-full text-xs text-gray-400 mt-1 px-1">
+                        <span>Poor</span>
+                        <span>Fair</span>
+                        <span class="font-bold text-green-600">Good</span>
+                        <span class="text-gray-500">Excellent</span>
+                    </div>
+                </div>
+
+                <h3 class="font-semibold text-gray-700 mb-3">Factors</h3>
+                <div class="space-y-2">
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-clock-rotate-left text-blue-500"></i>
+                            <span class="text-sm font-medium">Payment History</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-chart-pie text-adamon-green"></i>
+                            <span class="text-sm font-medium">Credit Utilization</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-hourglass-half text-yellow-500"></i>
+                            <span class="text-sm font-medium">Credit Age</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                </div>
+                
+                 <!-- Recommendations --><h3 class="font-semibold text-gray-700 mt-6 mb-3">Recommendations</h3>
+                <div class="bg-adamon-dark text-white p-4 rounded-xl">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-check-circle text-yellow-400 mt-1 text-lg"></i>
+                        <p class="text-sm font-medium">
+                            Keep credit utilization below 30% to maintain a good score. Your current utilization is 25%.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: FINANCIAL MENTOR (Profile) --><div id="tab-mentor" class="hidden fade-in">
+                <div class="bg-adamon-dark rounded-2xl p-6 text-white text-center mb-6 relative overflow-hidden">
+                    <!-- Decorative Circle --><div class="absolute top-0 right-0 p-10 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
+                    <div class="w-16 h-16 bg-yellow-400 rounded-full mx-auto mb-3 border-4 border-white overflow-hidden">
+                         <!-- Placeholder image for Mentor --><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Mentor" class="w-full h-full object-cover">
+                    </div>
+                    <h2 class="text-lg font-bold">Your Financial Mentor</h2>
+                    <p class="text-sm text-gray-300">Ready to help 24/7</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 relative">
+                    <!-- Chat Bubble Tail --><div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
+                    
+                    <h3 class="font-bold text-gray-800 mb-2">AI Suggestion Today</h3>
+                    
+                    <!-- Mock Chart (Mini) --><div class="relative h-20 w-full mb-3">
+                        <svg viewBox="0 0 100 40" class="w-full h-full drop-shadow-sm" preserveAspectRatio="none">
+                            <path d="M0,35 T25,30 T50,32 T75,25 T100,5" fill="none" stroke="#009688" stroke-width="2" />
+                            <path d="M0,35 T25,30 T50,32 T75,25 T100,5 V40 H0 Z" fill="rgba(0, 150, 136, 0.1)" stroke="none" />
+                        </svg>
+                    </div>
+
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        Optimalkan arus kas dengan menekan biaya operasional 5%. Saya mendeteksi pengeluaran utilitas Anda sedikit lebih tinggi dari rata-rata bulan lalu.
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <i class="fa-regular fa-circle-check text-adamon-green"></i>
+                            <span>Kurangi piutang menunggak</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <i class="fa-regular fa-circle-check text-adamon-green"></i>
+                            <span>Negosiasi ulang harga supplier</span>
+                        </div>
+                    </div>
+
+                    <button class="w-full mt-6 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition shadow-lg shadow-teal-900/20">
+                        Lihat Saran Lengkap
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 5: SECURITY CENTER --><div id="tab-security" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Security Center</h2>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                    <div class="bg-green-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-shield-halved text-5xl text-adamon-green"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-adamon-dark mb-2">Fully Protected</h3>
+                    <p class="text-sm text-gray-600">Your account and data are secured with the highest standards.</p>
+                </div>
+
+                <h3 class="font-semibold text-gray-700 mt-6 mb-3">Key Security Features</h3>
+                <div class="space-y-3">
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-4">
+                        <div class="bg-gray-100 p-2 rounded-full text-gray-600 w-10 h-10 flex items-center justify-center">
+                            <i class="fa-solid fa-lock text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">End-to-End Encryption</p>
+                            <p class="text-xs text-gray-500">All your communications are encrypted.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-4">
+                        <div class="bg-gray-100 p-2 rounded-full text-gray-600 w-10 h-10 flex items-center justify-center">
+                            <i class="fa-solid fa-layer-group text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">Multi-Layer Protection</p>
+                            <p class="text-xs text-gray-500">Defense in depth against threats.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-4">
+                        <div class="bg-gray-100 p-2 rounded-full text-gray-600 w-10 h-10 flex items-center justify-center">
+                            <i class="fa-solid fa-fingerprint text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">Biometric & PIN</p>
+                            <p class="text-xs text-gray-500">Secure access to your app.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-4">
+                        <div class="bg-gray-100 p-2 rounded-full text-gray-600 w-10 h-10 flex items-center justify-center">
+                            <i class="fa-solid fa-robot text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">Fraud Detection AI</p>
+                            <p class="text-xs text-gray-500">Real-time anomaly detection.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 6: NOTIFICATIONS CENTER (BARU DAN BISA DIPENCET) --><div id="tab-notifications" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Pemberitahuan (Notifications)</h2>
+                
+                <div class="space-y-4">
+                    <!-- Notification Item 1 (Urgent Alert) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500 hover:shadow-md transition cursor-pointer">
+                        <p class="font-bold text-gray-800 text-sm mb-1 flex justify-between items-center">
+                            <span>Alert: Biaya Tinggi</span>
+                            <span class="text-xs text-red-500 font-semibold">Urgent</span>
+                        </p>
+                        <p class="text-xs text-gray-500">Pengeluaran utilitas bulan ini melebihi 20% dari rata-rata Anda. Cek detailnya sekarang.</p>
+                        <span class="block text-xs text-gray-400 mt-2">5 menit yang lalu</span>
+                    </div>
+                    
+                    <!-- Notification Item 2 (Reward/Progress) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-adamon-green hover:shadow-md transition cursor-pointer">
+                        <p class="font-bold text-gray-800 text-sm mb-1 flex justify-between items-center">
+                            <span>Reward Baru</span>
+                            <span class="text-xs text-adamon-green font-semibold">New</span>
+                        </p>
+                        <p class="text-xs text-gray-500">Selamat! Anda menyelesaikan misi "Profit Booster" dan mendapat 500 XP.</p>
+                        <span class="block text-xs text-gray-400 mt-2">1 jam yang lalu</span>
+                    </div>
+                    
+                    <!-- Notification Item 3 (Reminder) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition cursor-pointer">
+                        <p class="font-bold text-gray-800 text-sm mb-1 flex justify-between items-center">
+                            <span>Reminder Kredit</span>
+                            <span class="text-xs text-blue-500 font-semibold">Info</span>
+                        </p>
+                        <p class="text-xs text-gray-500">Jadwal pembayaran cicilan Anda jatuh tempo dalam 3 hari. Segera lakukan pembayaran.</p>
+                        <span class="block text-xs text-gray-400 mt-2">Kemarin</span>
+                    </div>
+                    
+                    <!-- Notification Item 4 (Generic Update) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-300 hover:shadow-md transition cursor-pointer">
+                        <p class="font-bold text-gray-800 text-sm mb-1">Update Aplikasi</p>
+                        <p class="text-xs text-gray-500">Versi terbaru 2.1.0 sudah tersedia dengan peningkatan keamanan.</p>
+                        <span class="block text-xs text-gray-400 mt-2">2 hari yang lalu</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 7: MENU & PENGATURAN (BARU DAN BISA DIPENCET) --><div id="tab-menu" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Pengaturan & Menu</h2>
+                
+                <div class="space-y-3">
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-circle text-blue-500 text-lg"></i>
+                            <span class="text-sm font-medium">Edit Profil</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-gear text-gray-500 text-lg"></i>
+                            <span class="text-sm font-medium">Pengaturan Aplikasi</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-question-circle text-adamon-green text-lg"></i>
+                            <span class="text-sm font-medium">Bantuan & FAQ</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-sign-out-alt text-red-500 text-lg"></i>
+                            <span class="text-sm font-medium text-red-500">Log Out</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar --><nav class="bg-white border-t border-gray-200 px-4 py-3 flex justify-between items-center z-20 rounded-t-2xl shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+            
+            <!-- Tombol 1: Bookkeeping (Home) -->
+            <button id="nav-bookkeeping" onclick="switchTab('bookkeeping')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
+                <i class="fa-solid fa-file-invoice text-xl text-adamon-dark"></i>
+                <span class="text-xs mt-1 font-medium text-adamon-dark">Bookkeeping</span>
+            </button>
+            
+            <!-- Tombol 2: Financial -->
+            <button id="nav-financial" onclick="switchTab('financial')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
+                <i class="fa-solid fa-chart-line text-xl text-gray-400"></i>
+                <span class="text-xs mt-1 font-medium text-gray-400">Financial</span>
+            </button>
+            
+            <!-- Tombol 3: Credit -->
+            <button id="nav-credit" onclick="switchTab('credit')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
+                <i class="fa-solid fa-wallet text-xl text-gray-400"></i>
+                <span class="text-xs mt-1 font-medium text-gray-400">Credit</span>
+            </button>
+            
+            <!-- Tombol 4: Mentor -->
+            <button id="nav-mentor" onclick="switchTab('mentor')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
+                <i class="fa-solid fa-headset text-xl text-gray-400"></i>
+                <span class="text-xs mt-1 font-medium text-gray-400">Mentor</span>
+            </button>
+            
+            <!-- Tombol 5: Security -->
+            <button id="nav-security" onclick="switchTab('security')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
+                <i class="fa-solid fa-shield-halved text-xl text-gray-400"></i>
+                <span class="text-xs mt-1 font-medium text-gray-400">Security</span>
+            </button>
+
+        </nav>
+        
+    </div>
+
+    <!-- JavaScript untuk fungsi perpindahan tab -->
+    <script>
+        // Daftar ID tab yang ada di Bottom Navigation
+        const bottomNavTabs = ['bookkeeping', 'financial', 'credit', 'mentor', 'security'];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set tab default saat aplikasi dimuat
+            switchTab('bookkeeping');
+        });
+
+        function switchTab(tabId) {
+            // 1. Sembunyikan semua konten tab dan hapus animasi lama
+            const tabContents = document.querySelectorAll('#main-content > div');
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in'); 
+            });
+
+            // 2. Tampilkan konten tab yang diminta dan tambahkan animasi
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                // Berikan jeda sebentar sebelum menambahkan kelas fade-in agar animasi berjalan
+                setTimeout(() => {
+                    activeTab.classList.add('fade-in');
+                }, 10);
+            }
+
+            // 3. Atur gaya tombol navigasi bawah (Hanya berlaku untuk tombol di Bottom Nav)
+            
+            // Periksa apakah tab yang diaktifkan adalah bagian dari Bottom Nav
+            const isBottomNavTab = bottomNavTabs.includes(tabId);
+            
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                const icon = button.querySelector('i');
+                const text = button.querySelector('span');
+                
+                // Reset semua tombol ke gaya tidak aktif (abu-abu)
+                icon.classList.remove('text-adamon-dark');
+                icon.classList.add('text-gray-400');
+                text.classList.remove('text-adamon-dark');
+                text.classList.add('text-gray-400');
+
+                // Jika tab aktif adalah bagian dari Bottom Nav, atur warna yang sesuai
+                if (isBottomNavTab) {
+                    const buttonId = button.id.replace('nav-', '');
+                    if (buttonId === tabId) {
+                         icon.classList.remove('text-gray-400');
+                         icon.classList.add('text-adamon-dark');
+                         text.classList.remove('text-gray-400');
+                         text.classList.add('text-adamon-dark');
+                    }
+                }
+            });
+
+            // Catatan: Jika tab yang diaktifkan berasal dari Header (notifications atau menu), 
+            // semua tombol di Bottom Nav akan tetap abu-abu (sesuai langkah reset di atas), 
+            // yang merupakan perilaku yang tepat untuk halaman overlay/pengaturan.
+        }
+    </script>
+</body>
+</html>

@@ -965,355 +965,355 @@
             }, 1000);
         }
 
-        // ============================================
-        // FUNGSI TAMBAH PEMASUKAN & PENGELUARAN BARU
-        // ============================================
-
-        function showAddIncomeForm() {
-            showModal('Tambah Pemasukan', `
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                        <input type="text" id="income-desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="Contoh: Gaji bulanan">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
-                        <input type="number" id="income-amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="0">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                        <select id="income-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent">
-                            <option value="Gaji">Gaji</option>
-                            <option value="Bonus">Bonus</option>
-                            <option value="Investasi">Investasi</option>
-                            <option value="Freelance">Freelance</option>
-                            <option value="Hadiah">Hadiah</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                        <input type="date" id="income-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
-                    </div>
-                    
-                    <div class="flex gap-3">
-                        <button onclick="saveIncomeTransaction()" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
-                            Simpan
-                        </button>
-                        <button onclick="closeCurrentModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
-                            Batal
-                        </button>
-                    </div>
-                </div>
-            `);
-        }
-
-        function showAddExpenseForm() {
-            showModal('Tambah Pengeluaran', `
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                        <input type="text" id="expense-desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="Contoh: Belanja bulanan">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
-                        <input type="number" id="expense-amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="0">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                        <select id="expense-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent">
-                            <option value="Makanan">Makanan & Minuman</option>
-                            <option value="Transportasi">Transportasi</option>
-                            <option value="Belanja">Belanja</option>
-                            <option value="Hiburan">Hiburan</option>
-                            <option value="Kesehatan">Kesehatan</option>
-                            <option value="Pendidikan">Pendidikan</option>
-                            <option value="Tagihan">Tagihan & Utilitas</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                        <input type="date" id="expense-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
-                    </div>
-                    
-                    <div class="flex gap-3">
-                        <button onclick="saveExpenseTransaction()" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
-                            Simpan
-                        </button>
-                        <button onclick="closeCurrentModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
-                            Batal
-                        </button>
-                    </div>
-                </div>
-            `);
-        }
-
-        function saveIncomeTransaction() {
-            const desc = document.getElementById('income-desc').value.trim();
-            const amount = parseInt(document.getElementById('income-amount').value) || 0;
-            const category = document.getElementById('income-category').value;
-            const date = document.getElementById('income-date').value;
-            
-            if (!desc) {
-                showToast('Deskripsi tidak boleh kosong', 'error');
-                return;
-            }
-            
-            if (amount <= 0) {
-                showToast('Jumlah harus lebih dari 0', 'error');
-                return;
-            }
-            
-            const newTrans = {
-                id: Date.now(),
-                type: "income",
-                desc: desc,
-                category: category,
-                amount: amount,
-                date: date
-            };
-            
-            appState.transactions.unshift(newTrans);
-            updateTransactionList();
-            
-            // Update income data
-            appState.financialData.income += amount;
-            if (category === 'Gaji') {
-                appState.financialData.incomeBreakdown.gaji += amount;
-            } else if (category === 'Bonus') {
-                appState.financialData.incomeBreakdown.bonus += amount;
-            } else {
-                appState.financialData.incomeBreakdown.lainnya += amount;
-            }
-            
-            // Update user balance
-            appState.user.balance += amount;
-            
-            // Update display
-            updateBalance();
-            
-            closeCurrentModal();
-            showToast('Pemasukan berhasil ditambahkan! 🎉', 'success');
-        }
-
-        function saveExpenseTransaction() {
-            const desc = document.getElementById('expense-desc').value.trim();
-            const amount = parseInt(document.getElementById('expense-amount').value) || 0;
-            const category = document.getElementById('expense-category').value;
-            const date = document.getElementById('expense-date').value;
-            
-            if (!desc) {
-                showToast('Deskripsi tidak boleh kosong', 'error');
-                return;
-            }
-            
-            if (amount <= 0) {
-                showToast('Jumlah harus lebih dari 0', 'error');
-                return;
-            }
-            
-            const newTrans = {
-                id: Date.now(),
-                type: "expense",
-                desc: desc,
-                category: category,
-                amount: amount,
-                date: date
-            };
-            
-            appState.transactions.unshift(newTrans);
-            updateTransactionList();
-            
-            // Update expense data
-            appState.financialData.expense += amount;
-            if (category === 'Makanan') {
-                appState.financialData.expenseBreakdown.makanan += amount;
-            } else if (category === 'Transportasi') {
-                appState.financialData.expenseBreakdown.transportasi += amount;
-            } else if (category === 'Tagihan') {
-                appState.financialData.expenseBreakdown.sewa += amount;
-            } else {
-                appState.financialData.expenseBreakdown.lainnya += amount;
-            }
-            
-            // Update user balance
-            appState.user.balance -= amount;
-            
-            // Update display
-            updateBalance();
-            
-            closeCurrentModal();
-            showToast('Pengeluaran berhasil dicatat! 💰', 'success');
-        }
-
-        // ============================================
-        // FUNGSI UNTUK TOMBOL "Tambah Pemasukan" & "Tambah Pengeluaran"
-        // ============================================
-
-        function quickAddTransaction(type) {
-            if (type === 'income') {
-                showAddIncomeForm();
-            } else if (type === 'expense') {
-                showAddExpenseForm();
-            }
-        }
-
-        // ============================================
-        // FUNGSI LAINNYA YANG SUDAH ADA (DIPERBAIKI)
-        // ============================================
-
-        function showQuickAddMenu() {
-            showModal('Tambah Cepat', `
-                <div class="space-y-3">
-                    <button onclick="showAddIncomeForm()" class="w-full bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-green-100">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-money-bill-wave text-green-600"></i>
-                            <span>Tambah Pemasukan</span>
-                        </div>
-                        <i class="fa-solid fa-plus text-green-600"></i>
-                    </button>
-                    <button onclick="showAddExpenseForm()" class="w-full bg-red-50 border border-red-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-red-100">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-utensils text-red-600"></i>
-                            <span>Tambah Pengeluaran</span>
-                        </div>
-                        <i class="fa-solid fa-plus text-red-600"></i>
-                    </button>
-                    <button onclick="showTransferForm()" class="w-full bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-blue-100">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-arrow-right-arrow-left text-blue-600"></i>
-                            <span>Catat Transfer</span>
-                        </div>
-                        <i class="fa-solid fa-plus text-blue-600"></i>
-                    </button>
-                </div>
-            `);
-        }
-
-        function showTransferForm() {
-            showModal('Catat Transfer', `
-                <div class="space-y-4">
-                    <p class="text-gray-600 text-sm">Fitur transfer antar rekening akan segera hadir di update berikutnya!</p>
-                    <button onclick="closeCurrentModal()" class="w-full bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
-                        OK, Mengerti
-                    </button>
-                </div>
-            `);
-        }
-
-        // ============================================
-        // FUNGSI PREMIUM YANG SUDAH DIPERBAIKI
-        // ============================================
-
-        function showPremiumModal() {
-            showModal('Fitur Premium Adamon', `
-                <div class="space-y-6">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                            <i class="fa-solid fa-crown text-white text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-800">Upgrade ke Premium</h3>
-                        <p class="text-sm text-gray-600 mt-1">Buka semua fitur eksklusif untuk manajemen keuangan yang lebih baik</p>
-                    </div>
-                    
+            // ============================================
+            // FUNGSI TAMBAH PEMASUKAN & PENGELUARAN BARU
+            // ============================================
+    
+            function showAddIncomeForm() {
+                showModal('Tambah Pemasukan', `
                     <div class="space-y-4">
-                        <!-- Fitur Premium 1 -->
-                        <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <i class="fa-solid fa-robot text-blue-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-800">Analisis AI Lanjutan</p>
-                                <p class="text-xs text-gray-600">Prediksi keuangan & rekomendasi investasi personal</p>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <input type="text" id="income-desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="Contoh: Gaji bulanan">
                         </div>
                         
-                        <!-- Fitur Premium 2 -->
-                        <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <i class="fa-solid fa-file-export text-green-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-800">Ekspor Data Unlimited</p>
-                                <p class="text-xs text-gray-600">Ekspor laporan ke PDF, Excel tanpa batas</p>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                            <input type="number" id="income-amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="0">
                         </div>
                         
-                        <!-- Fitur Premium 3 -->
-                        <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
-                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <i class="fa-solid fa-headset text-purple-600"></i>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-800">Dukungan Prioritas</p>
-                                <p class="text-xs text-gray-600">Akses langsung ke spesialis keuangan 24/7</p>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <select id="income-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent">
+                                <option value="Gaji">Gaji</option>
+                                <option value="Bonus">Bonus</option>
+                                <option value="Investasi">Investasi</option>
+                                <option value="Freelance">Freelance</option>
+                                <option value="Hadiah">Hadiah</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                            <input type="date" id="income-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button onclick="saveIncomeTransaction()" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
+                                Simpan
+                            </button>
+                            <button onclick="closeCurrentModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
+                                Batal
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Harga -->
-                    <div class="bg-gradient-to-r from-adamon-dark to-teal-700 p-4 rounded-xl text-white text-center shadow-md">
-                        <p class="text-sm opacity-90 mb-1">Harga Spesial</p>
-                        <p class="text-3xl font-bold">Rp 49.999<span class="text-lg">/bulan</span></p>
-                        <p class="text-xs opacity-80 mt-1">Atau Rp 499.999/tahun (hemat 16%)</p>
-                    </div>
-                    
-                    <!-- Tombol Aksi -->
-                    <div class="space-y-3">
-                        <button onclick="subscribePremium()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark py-3 rounded-xl font-bold hover:from-yellow-500 hover:to-orange-500 transition flex items-center justify-center gap-2 btn-press shadow-lg">
-                            <i class="fa-solid fa-crown"></i>
-                            Upgrade Sekarang
-                        </button>
+                `);
+            }
+    
+            function showAddExpenseForm() {
+                showModal('Tambah Pengeluaran', `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <input type="text" id="expense-desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="Contoh: Belanja bulanan">
+                        </div>
                         
-                        <!-- TOMBOL INI SUDAH DIPERBAIKI -->
-                        <button onclick="closeCurrentModal()" class="w-full text-sm text-gray-500 hover:text-gray-700 transition btn-press">
-                            Nanti Saja
-                        </button>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                            <input type="number" id="expense-amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="0">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <select id="expense-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent">
+                                <option value="Makanan">Makanan & Minuman</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Belanja">Belanja</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Kesehatan">Kesehatan</option>
+                                <option value="Pendidikan">Pendidikan</option>
+                                <option value="Tagihan">Tagihan & Utilitas</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                            <input type="date" id="expense-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button onclick="saveExpenseTransaction()" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
+                                Simpan
+                            </button>
+                            <button onclick="closeCurrentModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
+                                Batal
+                            </button>
+                        </div>
                     </div>
-                    
-                    <!-- Info Tambahan -->
-                    <div class="pt-4 border-t border-gray-200">
-                        <p class="text-xs text-center text-gray-500">✅ 30 hari garansi uang kembali • 🔒 Pembayaran aman • 📱 Bisa diakses di semua perangkat</p>
-                    </div>
-                </div>
-            `);
-        }
-
-        function subscribePremium() {
-            showToast('Mengarahkan ke halaman pembayaran...', 'info');
-            
-            // Tutup modal premium
-            closeCurrentModal();
-            
-            // Simulasi proses pembayaran
-            setTimeout(() => {
-                const success = Math.random() > 0.2; // 80% success rate
+                `);
+            }
+    
+            function saveIncomeTransaction() {
+                const desc = document.getElementById('income-desc').value.trim();
+                const amount = parseInt(document.getElementById('income-amount').value) || 0;
+                const category = document.getElementById('income-category').value;
+                const date = document.getElementById('income-date').value;
                 
-                if (success) {
-                    appState.user.isPremium = true;
-                    showToast('🎉 Berlangganan premium berhasil! Fitur premium sudah aktif.', 'success');
-                    
-                    // Update UI untuk menandakan premium
-                    const premiumBadge = document.querySelector('.bg-gradient-to-r.from-yellow-400.to-orange-400');
-                    if (premiumBadge) {
-                        premiumBadge.innerHTML = '<i class="fa-solid fa-crown"></i> <span>PRO</span>';
-                        premiumBadge.classList.add('animate-pulse');
-                        setTimeout(() => {
-                            premiumBadge.classList.remove('animate-pulse');
-                        }, 2000);
-                    }
-                } else {
-                    showToast('Pembayaran gagal. Silakan coba lagi.', 'error');
+                if (!desc) {
+                    showToast('Deskripsi tidak boleh kosong', 'error');
+                    return;
                 }
-            }, 1500);
-        }
+                
+                if (amount <= 0) {
+                    showToast('Jumlah harus lebih dari 0', 'error');
+                    return;
+                }
+                
+                const newTrans = {
+                    id: Date.now(),
+                    type: "income",
+                    desc: desc,
+                    category: category,
+                    amount: amount,
+                    date: date
+                };
+                
+                appState.transactions.unshift(newTrans);
+                updateTransactionList();
+                
+                // Update income data
+                appState.financialData.income += amount;
+                if (category === 'Gaji') {
+                    appState.financialData.incomeBreakdown.gaji += amount;
+                } else if (category === 'Bonus') {
+                    appState.financialData.incomeBreakdown.bonus += amount;
+                } else {
+                    appState.financialData.incomeBreakdown.lainnya += amount;
+                }
+                
+                // Update user balance
+                appState.user.balance += amount;
+                
+                // Update display
+                updateBalance();
+                
+                closeCurrentModal();
+                showToast('Pemasukan berhasil ditambahkan! 🎉', 'success');
+            }
+    
+            function saveExpenseTransaction() {
+                const desc = document.getElementById('expense-desc').value.trim();
+                const amount = parseInt(document.getElementById('expense-amount').value) || 0;
+                const category = document.getElementById('expense-category').value;
+                const date = document.getElementById('expense-date').value;
+                
+                if (!desc) {
+                    showToast('Deskripsi tidak boleh kosong', 'error');
+                    return;
+                }
+                
+                if (amount <= 0) {
+                    showToast('Jumlah harus lebih dari 0', 'error');
+                    return;
+                }
+                
+                const newTrans = {
+                    id: Date.now(),
+                    type: "expense",
+                    desc: desc,
+                    category: category,
+                    amount: amount,
+                    date: date
+                };
+                
+                appState.transactions.unshift(newTrans);
+                updateTransactionList();
+                
+                // Update expense data
+                appState.financialData.expense += amount;
+                if (category === 'Makanan') {
+                    appState.financialData.expenseBreakdown.makanan += amount;
+                } else if (category === 'Transportasi') {
+                    appState.financialData.expenseBreakdown.transportasi += amount;
+                } else if (category === 'Tagihan') {
+                    appState.financialData.expenseBreakdown.sewa += amount;
+                } else {
+                    appState.financialData.expenseBreakdown.lainnya += amount;
+                }
+                
+                // Update user balance
+                appState.user.balance -= amount;
+                
+                // Update display
+                updateBalance();
+                
+                closeCurrentModal();
+                showToast('Pengeluaran berhasil dicatat! 💰', 'success');
+            }
+    
+            // ============================================
+            // FUNGSI UNTUK TOMBOL "Tambah Pemasukan" & "Tambah Pengeluaran"
+            // ============================================
+    
+            function quickAddTransaction(type) {
+                if (type === 'income') {
+                    showAddIncomeForm();
+                } else if (type === 'expense') {
+                    showAddExpenseForm();
+                }
+            }
+    
+            // ============================================
+            // FUNGSI LAINNYA YANG SUDAH ADA (DIPERBAIKI)
+            // ============================================
+    
+            function showQuickAddMenu() {
+                showModal('Tambah Cepat', `
+                    <div class="space-y-3">
+                        <button onclick="showAddIncomeForm()" class="w-full bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-green-100">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-money-bill-wave text-green-600"></i>
+                                <span>Tambah Pemasukan</span>
+                            </div>
+                            <i class="fa-solid fa-plus text-green-600"></i>
+                        </button>
+                        <button onclick="showAddExpenseForm()" class="w-full bg-red-50 border border-red-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-red-100">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-utensils text-red-600"></i>
+                                <span>Tambah Pengeluaran</span>
+                            </div>
+                            <i class="fa-solid fa-plus text-red-600"></i>
+                        </button>
+                        <button onclick="showTransferForm()" class="w-full bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-blue-100">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-arrow-right-arrow-left text-blue-600"></i>
+                                <span>Catat Transfer</span>
+                            </div>
+                            <i class="fa-solid fa-plus text-blue-600"></i>
+                        </button>
+                    </div>
+                `);
+            }
+    
+            function showTransferForm() {
+                showModal('Catat Transfer', `
+                    <div class="space-y-4">
+                        <p class="text-gray-600 text-sm">Fitur transfer antar rekening akan segera hadir di update berikutnya!</p>
+                        <button onclick="closeCurrentModal()" class="w-full bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
+                            OK, Mengerti
+                        </button>
+                    </div>
+                `);
+            }
+    
+            // ============================================
+            // FUNGSI PREMIUM YANG SUDAH DIPERBAIKI
+            // ============================================
+    
+            function showPremiumModal() {
+                showModal('Fitur Premium Adamon', `
+                    <div class="space-y-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                                <i class="fa-solid fa-crown text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Upgrade ke Premium</h3>
+                            <p class="text-sm text-gray-600 mt-1">Buka semua fitur eksklusif untuk manajemen keuangan yang lebih baik</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Fitur Premium 1 -->
+                            <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-robot text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">Analisis AI Lanjutan</p>
+                                    <p class="text-xs text-gray-600">Prediksi keuangan & rekomendasi investasi personal</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Fitur Premium 2 -->
+                            <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-file-export text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">Ekspor Data Unlimited</p>
+                                    <p class="text-xs text-gray-600">Ekspor laporan ke PDF, Excel tanpa batas</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Fitur Premium 3 -->
+                            <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-headset text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">Dukungan Prioritas</p>
+                                    <p class="text-xs text-gray-600">Akses langsung ke spesialis keuangan 24/7</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Harga -->
+                        <div class="bg-gradient-to-r from-adamon-dark to-teal-700 p-4 rounded-xl text-white text-center shadow-md">
+                            <p class="text-sm opacity-90 mb-1">Harga Spesial</p>
+                            <p class="text-3xl font-bold">Rp 49.999<span class="text-lg">/bulan</span></p>
+                            <p class="text-xs opacity-80 mt-1">Atau Rp 499.999/tahun (hemat 16%)</p>
+                        </div>
+                        
+                        <!-- Tombol Aksi -->
+                        <div class="space-y-3">
+                            <button onclick="subscribePremium()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark py-3 rounded-xl font-bold hover:from-yellow-500 hover:to-orange-500 transition flex items-center justify-center gap-2 btn-press shadow-lg">
+                                <i class="fa-solid fa-crown"></i>
+                                Upgrade Sekarang
+                            </button>
+                            
+                            <!-- TOMBOL INI SUDAH DIPERBAIKI -->
+                            <button onclick="closeCurrentModal()" class="w-full text-sm text-gray-500 hover:text-gray-700 transition btn-press">
+                                Nanti Saja
+                            </button>
+                        </div>
+                        
+                        <!-- Info Tambahan -->
+                        <div class="pt-4 border-t border-gray-200">
+                            <p class="text-xs text-center text-gray-500">✅ 30 hari garansi uang kembali • 🔒 Pembayaran aman • 📱 Bisa diakses di semua perangkat</p>
+                        </div>
+                    </div>
+                `);
+            }
+    
+            function subscribePremium() {
+                showToast('Mengarahkan ke halaman pembayaran...', 'info');
+                
+                // Tutup modal premium
+                closeCurrentModal();
+                
+                // Simulasi proses pembayaran
+                setTimeout(() => {
+                    const success = Math.random() > 0.2; // 80% success rate
+                    
+                    if (success) {
+                        appState.user.isPremium = true;
+                        showToast('🎉 Berlangganan premium berhasil! Fitur premium sudah aktif.', 'success');
+                        
+                        // Update UI untuk menandakan premium
+                        const premiumBadge = document.querySelector('.bg-gradient-to-r.from-yellow-400.to-orange-400');
+                        if (premiumBadge) {
+                            premiumBadge.innerHTML = '<i class="fa-solid fa-crown"></i> <span>PRO</span>';
+                            premiumBadge.classList.add('animate-pulse');
+                            setTimeout(() => {
+                                premiumBadge.classList.remove('animate-pulse');
+                            }, 2000);
+                        }
+                    } else {
+                        showToast('Pembayaran gagal. Silakan coba lagi.', 'error');
+                    }
+                }, 1500);
+            }
         // ============================================
         // FUNGSI NOTIFIKASI LENGKAP
         // ============================================
@@ -3037,4 +3037,5 @@
     </script>
 </body>
 </html>
+
 

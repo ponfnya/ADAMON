@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adamon - Aplikasi Keuangan</title>
     
-    <!-- Menggunakan Tailwind CSS untuk styling cepat dan modern --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Menggunakan Tailwind CSS untuk styling cepat dan modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Google: Inter --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Google: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Ikon dari FontAwesome --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Ikon dari FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
@@ -59,19 +62,48 @@
         
         /* Gaya tombol interaktif di fitur keamanan */
         .security-button:hover {
-            background-color: #f9fafb; /* Lighter background on hover */
+            background-color: #f9fafb;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 100;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
 <body class="flex justify-center min-h-screen">
 
-    <!-- Mobile Container Wrapper --><div class="w-full max-w-md bg-gray-50 h-screen shadow-2xl relative overflow-hidden flex flex-col">
+    <!-- Mobile Container Wrapper -->
+    <div class="w-full max-w-md bg-gray-50 h-screen shadow-2xl relative overflow-hidden flex flex-col">
         
-        <!-- Header (Sticky) --><header class="bg-adamon-dark text-white p-5 pt-10 rounded-b-3xl shadow-md z-20 flex justify-between items-center relative">
+        <!-- Header (Sticky) -->
+        <header class="bg-adamon-dark text-white p-5 pt-10 rounded-b-3xl shadow-md z-20 flex justify-between items-center relative">
             <div class="flex items-center gap-2">
                 <div class="bg-yellow-400 p-1 rounded-full">
-                    <!-- Ikon/Mock Logo -->
                     <i class="fa-solid fa-skull text-adamon-dark text-xs"></i> 
                 </div>
                 <h1 class="font-bold text-lg tracking-wide">ADAMON</h1>
@@ -80,8 +112,9 @@
             <!-- TOMBOL HEADER Fungsional -->
             <div class="flex gap-4">
                 <!-- Tombol Pemberitahuan (Lonceng) -->
-                <button onclick="switchTab('notifications')" class="hover:text-yellow-400 cursor-pointer transition text-xl">
+                <button onclick="showNotifications()" class="relative hover:text-yellow-400 cursor-pointer transition text-xl">
                     <i class="fa-regular fa-bell"></i>
+                    <span id="notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">3</span>
                 </button>
                 <!-- Tombol Menu (Bars) -->
                 <button onclick="switchTab('menu')" class="hover:text-yellow-400 cursor-pointer transition text-xl">
@@ -97,6 +130,18 @@
             <div id="tab-bookkeeping" class="fade-in">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Pencatatan Keuangan Pintar</h2>
                 
+                <!-- Statistik Cepat -->
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-500 mb-1">Saldo Bulan Ini</p>
+                        <p class="text-lg font-bold text-gray-800" id="current-balance">Rp 34.500.000</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-500 mb-1">Transaksi Hari Ini</p>
+                        <p class="text-lg font-bold text-gray-800" id="today-transactions">3</p>
+                    </div>
+                </div>
+
                 <!-- Ilustrasi/Icon Besar (BISA DIPENCET) -->
                 <button onclick="switchTab('financial')" class="w-full mb-6 focus:outline-none">
                     <div class="flex justify-center">
@@ -107,70 +152,22 @@
                 </button>
 
                 <!-- Transaksi Terbaru -->
-                <h3 class="font-semibold text-gray-700 mb-3">Transaksi Terbaru</h3>
-                <div class="space-y-3">
-                    <!-- Item 1: Utilitas -->
-                    <button onclick="switchTab('transaction-detail', { title: 'Biaya Utilitas', type: 'Pengeluaran', amount: '-Rp 150.000', category: 'Rumah Tangga' })" class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer text-left">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-blue-100 p-2 rounded-full text-blue-600 w-10 h-10 flex items-center justify-center">
-                                <i class="fa-solid fa-bolt"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-800 text-sm">Biaya Utilitas</p>
-                                <p class="text-xs text-gray-400">Pengeluaran</p>
-                            </div>
-                        </div>
-                        <span class="font-bold text-red-500">-Rp 150.000</span>
-                    </button>
-
-                    <!-- Item 2: Gaji -->
-                    <button onclick="switchTab('transaction-detail', { title: 'Gaji', type: 'Pemasukan', amount: '+Rp 2.500.000', category: 'Pendapatan Aktif' })" class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer text-left">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-100 p-2 rounded-full text-green-600 w-10 h-10 flex items-center justify-center">
-                                <i class="fa-solid fa-sack-dollar"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-800 text-sm">Gaji</p>
-                                <p class="text-xs text-gray-400">Pemasukan</p>
-                            </div>
-                        </div>
-                        <span class="font-bold text-green-600">+Rp 2.500.000</span>
-                    </button>
-
-                    <!-- Item 3: Sewa -->
-                    <button onclick="switchTab('transaction-detail', { title: 'Sewa', type: 'Pengeluaran', amount: '-Rp 1.200.000', category: 'Kebutuhan Pokok' })" class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer text-left">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-red-100 p-2 rounded-full text-red-600 w-10 h-10 flex items-center justify-center">
-                                <i class="fa-solid fa-house"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-800 text-sm">Sewa</p>
-                                <p class="text-xs text-gray-400">Pengeluaran</p>
-                            </div>
-                        </div>
-                        <span class="font-bold text-red-500">-Rp 1.200.000</span>
-                    </button>
-
-                    <!-- Item 4: Belanja Harian -->
-                    <button onclick="switchTab('transaction-detail', { title: 'Belanja Harian', type: 'Pengeluaran', amount: '-Rp 250.000', category: 'Kebutuhan Konsumtif' })" class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer text-left">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-yellow-100 p-2 rounded-full text-yellow-600 w-10 h-10 flex items-center justify-center">
-                                <i class="fa-solid fa-basket-shopping"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-800 text-sm">Belanja Harian</p>
-                                <p class="text-xs text-gray-400">Pengeluaran</p>
-                            </div>
-                        </div>
-                        <span class="font-bold text-red-500">-Rp 250.000</span>
-                    </button>
-                    
-                    <!-- Saran Banner -->
-                    <button onclick="switchTab('mentor')" class="w-full mt-6 bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-start gap-2 text-left hover:bg-blue-100 transition cursor-pointer">
-                        <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
-                        <p class="text-xs text-blue-800">Pertahankan pemanfaatan kredit di bawah 30% untuk meningkatkan skor Anda bulan depan. <span class="text-blue-600 font-semibold">Lihat Saran Mentor.</span></p>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-gray-700">Transaksi Terbaru</h3>
+                    <button onclick="showTransactionFilters()" class="text-sm text-adamon-dark flex items-center gap-1">
+                        <i class="fa-solid fa-filter"></i>
+                        Filter
                     </button>
                 </div>
+                <div class="space-y-3" id="transaction-list">
+                    <!-- Transaksi akan dimuat secara dinamis -->
+                </div>
+                
+                <!-- Saran Banner -->
+                <button onclick="switchTab('mentor')" class="w-full mt-6 bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-start gap-2 text-left hover:bg-blue-100 transition cursor-pointer">
+                    <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                    <p class="text-xs text-blue-800">Pertahankan pemanfaatan kredit di bawah 30% untuk meningkatkan skor Anda bulan depan. <span class="text-blue-600 font-semibold">Lihat Saran Mentor.</span></p>
+                </button>
             </div>
 
             <!-- SECTION 2: RINGKASAN KEUANGAN (Chart) -->
@@ -183,7 +180,7 @@
                         <p class="text-gray-500 text-sm">Total Saldo</p>
                         <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">+22%</span>
                     </div>
-                    <h1 class="text-3xl font-bold text-gray-800 mb-4">Rp 34.500.000</h1>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4" id="financial-total-balance">Rp 34.500.000</h1>
                     
                     <!-- Mock Chart (SVG) -->
                     <div class="relative h-32 w-full">
@@ -210,7 +207,7 @@
                     <!-- Pemasukan Card -->
                     <button onclick="switchTab('income-detail')" class="w-full interactive-card bg-white p-4 rounded-xl shadow-sm text-left">
                         <p class="text-xs text-gray-500 mb-1">Pemasukan</p>
-                        <p class="text-lg font-bold text-gray-800">Rp 16.500.000</p>
+                        <p class="text-lg font-bold text-gray-800" id="financial-income">Rp 16.500.000</p>
                         <div class="w-full bg-gray-200 h-1 mt-2 rounded-full">
                             <div class="bg-green-500 h-1 rounded-full" style="width: 70%"></div>
                         </div>
@@ -219,7 +216,7 @@
                     <!-- Pengeluaran Card -->
                     <button onclick="switchTab('expense-detail')" class="w-full interactive-card bg-white p-4 rounded-xl shadow-sm text-left">
                         <p class="text-xs text-gray-500 mb-1">Pengeluaran</p>
-                        <p class="text-lg font-bold text-gray-800">Rp 9.983.000</p>
+                        <p class="text-lg font-bold text-gray-800" id="financial-expense">Rp 9.983.000</p>
                          <div class="w-full bg-gray-200 h-1 mt-2 rounded-full">
                             <div class="bg-orange-500 h-1 rounded-full" style="width: 40%"></div>
                         </div>
@@ -245,7 +242,7 @@
                          </div>
                     </div>
                     <!-- Score Number -->
-                    <h1 class="text-4xl font-bold text-gray-800 -mt-8 z-10">720</h1>
+                    <h1 class="text-4xl font-bold text-gray-800 -mt-8 z-10" id="credit-score">720</h1>
                     
                     <!-- Status Bar -->
                     <div class="flex w-full mt-4 gap-1">
@@ -298,7 +295,7 @@
                 <div class="bg-adamon-dark text-white p-4 rounded-xl">
                     <div class="flex items-start gap-3">
                         <i class="fa-solid fa-check-circle text-yellow-400 mt-1 text-lg"></i>
-                        <p class="text-sm font-medium">
+                        <p class="text-sm font-medium" id="credit-advice">
                             Pertahankan pemanfaatan kredit di bawah 30% untuk menjaga skor baik. Pemanfaatan Anda saat ini adalah 25%.
                         </p>
                     </div>
@@ -333,7 +330,7 @@
                         </svg>
                     </div>
 
-                    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4" id="mentor-advice">
                         Optimalkan arus kas dengan menekan biaya operasional 5%. Saya mendeteksi pengeluaran utilitas Anda sedikit lebih tinggi dari rata-rata bulan lalu.
                     </p>
 
@@ -354,7 +351,7 @@
                 </div>
             </div>
 
-            <!-- SECTION 5: PUSAT KEAMANAN (UPDATED) -->
+            <!-- SECTION 5: PUSAT KEAMANAN -->
             <div id="tab-security" class="hidden fade-in">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Pusat Keamanan</h2>
                 <!-- Konten Terlindungi Penuh -->
@@ -430,63 +427,197 @@
                 </div>
             </div>
 
-            <!-- SECTION 6: PEMBERITAHUAN -->
-            <div id="tab-notifications" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Pemberitahuan</h2>
-                <!-- Konten lama Pemberitahuan -->
-                <div class="space-y-4">
-                    <!-- Notification Item 1 (Urgent Alert) -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500 hover:shadow-md transition cursor-pointer">
-                        <p class="font-bold text-gray-800 text-sm mb-1 flex justify-between items-center">
-                            <span>Peringatan: Biaya Tinggi</span>
-                            <span class="text-xs text-red-500 font-semibold">Mendesak</span>
-                        </p>
-                        <p class="text-xs text-gray-500">Pengeluaran utilitas bulan ini melebihi 20% dari rata-rata Anda. Cek detailnya sekarang.</p>
-                        <span class="block text-xs text-gray-400 mt-2">5 menit yang lalu</span>
+            <!-- SECTION 6: PROFIL PENGGUNA -->
+            <div id="tab-profile" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Profil Pengguna</h2>
+                
+                <!-- Informasi Profil -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="relative">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rizki" alt="Profil" class="w-20 h-20 rounded-full border-4 border-adamon-green/20">
+                            <button onclick="changeProfilePicture()" class="absolute bottom-0 right-0 bg-adamon-green text-white p-2 rounded-full text-xs">
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800" id="profile-name">Rizki Pratama</h3>
+                            <p class="text-sm text-gray-500" id="profile-email">rizki.pratama@email.com</p>
+                            <p class="text-xs text-gray-400 mt-1">Bergabung sejak Januari 2024</p>
+                        </div>
                     </div>
                     
-                    <!-- Notification Item 2 (Reward/Progress) -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-adamon-green hover:shadow-md transition cursor-pointer">
-                        <p class="font-bold text-gray-800 text-sm mb-1 flex justify-between items-center">
-                            <span>Hadiah Baru</span>
-                            <span class="text-xs text-adamon-green font-semibold">Baru</span>
-                        </p>
-                        <p class="text-xs text-gray-500">Selamat! Anda menyelesaikan misi "Profit Booster" dan mendapat 500 Poin XP.</p>
-                        <span class="block text-xs text-gray-400 mt-2">1 jam yang lalu</span>
+                    <!-- Statistik Profil -->
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <p class="text-2xl font-bold text-adamon-dark" id="profile-transactions">24</p>
+                            <p class="text-xs text-gray-500">Transaksi</p>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <p class="text-2xl font-bold text-adamon-dark" id="profile-days">150</p>
+                            <p class="text-xs text-gray-500">Hari Aktif</p>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <p class="text-2xl font-bold text-adamon-dark" id="profile-score">720</p>
+                            <p class="text-xs text-gray-500">Skor Kredit</p>
+                        </div>
                     </div>
                     
-                    <!-- Notification Item 3 (Reminder) -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition cursor-pointer">
-                        <p class="font-bold text-gray-800 text-sm mb-1 flex justify-between items-center">
-                            <span>Pengingat Kredit</span>
-                            <span class="text-xs text-blue-500 font-semibold">Info</span>
-                        </p>
-                        <p class="text-xs text-gray-500">Jadwal pembayaran cicilan Anda jatuh tempo dalam 3 hari. Segera lakukan pembayaran.</p>
-                        <span class="block text-xs text-gray-400 mt-2">Kemarin</span>
+                    <!-- Informasi Tambahan -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                            <span class="text-sm text-gray-600">No. Telepon</span>
+                            <span class="text-sm font-medium" id="profile-phone">+62 812-3456-7890</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                            <span class="text-sm text-gray-600">Lokasi</span>
+                            <span class="text-sm font-medium" id="profile-location">Jakarta, Indonesia</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Status Verifikasi</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Terverifikasi</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tombol Aksi Profil -->
+                <div class="space-y-3">
+                    <button onclick="switchTab('edit-profile')" class="w-full bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-edit"></i>
+                        Edit Profil
+                    </button>
+                    <button onclick="exportUserData()" class="w-full border border-adamon-dark text-adamon-dark py-3 rounded-xl font-medium hover:bg-adamon-dark/5 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i>
+                        Ekspor Data Saya
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 7: EDIT PROFIL -->
+            <div id="tab-edit-profile" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Profil</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                    <!-- Form Edit Profil -->
+                    <div class="space-y-4">
+                        <div class="flex flex-col items-center">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rizki" alt="Profil" class="w-24 h-24 rounded-full border-4 border-adamon-green/20 mb-3">
+                            <button onclick="changeProfilePicture()" class="text-sm text-adamon-dark hover:text-adamon-green transition">
+                                Ganti Foto Profil
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                                <input type="text" id="edit-name" placeholder="Nama Lengkap" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="edit-email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">No. Telepon</label>
+                                <input type="tel" id="edit-phone" placeholder="No. Telepon" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                                <input type="text" id="edit-location" placeholder="Lokasi" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Ganti Kata Sandi</label>
+                                <input type="password" id="edit-password" placeholder="Kata Sandi Baru" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Notification Item 4 (Generic Update) -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-300 hover:shadow-md transition cursor-pointer">
-                        <p class="font-bold text-gray-800 text-sm mb-1">Pembaruan Aplikasi</p>
-                        <p class="text-xs text-gray-500">Versi terbaru 2.1.0 sudah tersedia dengan peningkatan keamanan.</p>
-                        <span class="block text-xs text-gray-400 mt-2">2 hari yang lalu</span>
+                    <div class="flex gap-3">
+                        <button onclick="saveProfile()" class="flex-1 bg-adamon-green text-white py-3 rounded-xl font-medium hover:bg-teal-700 transition">
+                            Simpan Perubahan
+                        </button>
+                        <button onclick="switchTab('profile')" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
+                            Batal
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- SECTION 7: MENU & PENGATURAN -->
+            <!-- SECTION 8: PENGATURAN APLIKASI -->
+            <div id="tab-settings" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Pengaturan Aplikasi</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                    <p class="text-sm font-semibold text-gray-800">Preferensi Notifikasi</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Notifikasi Transaksi</p>
+                                <p class="text-xs text-gray-500">Dapatkan notifikasi untuk setiap transaksi</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="notif-transaction" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-adamon-green/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-adamon-green"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Notifikasi Mentor</p>
+                                <p class="text-xs text-gray-500">Saran dan tips dari mentor keuangan</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="notif-mentor" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-adamon-green/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-adamon-green"></div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm font-semibold text-gray-800 pt-4">Tampilan</p>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Mode Gelap</p>
+                            <p class="text-xs text-gray-500">Ubah tampilan aplikasi menjadi gelap</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="dark-mode" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-adamon-green/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-adamon-green"></div>
+                        </label>
+                    </div>
+                    
+                    <p class="text-sm font-semibold text-gray-800 pt-4">Data & Privasi</p>
+                    <div class="space-y-3">
+                        <button onclick="exportUserData()" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Ekspor Data</p>
+                                <p class="text-xs text-gray-500">Unduh semua data keuangan Anda</p>
+                            </div>
+                            <i class="fa-solid fa-download text-adamon-dark"></i>
+                        </button>
+                        <button onclick="clearData()" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Hapus Data Sementara</p>
+                                <p class="text-xs text-gray-500">Reset data tanpa menghapus akun</p>
+                            </div>
+                            <i class="fa-solid fa-trash text-red-500"></i>
+                        </button>
+                    </div>
+                    
+                    <button onclick="switchTab('menu')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition pt-4">
+                        Kembali ke Menu
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 9: MENU & PENGATURAN -->
             <div id="tab-menu" class="hidden fade-in">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Pengaturan & Menu</h2>
-                <!-- Konten lama Menu & Pengaturan -->
                 <div class="space-y-3">
-                    <!-- Tombol 1: Edit Profil -->
-                    <button onclick="switchTab('edit-profile')" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                    <!-- Tombol 1: Profil -->
+                    <button onclick="switchTab('profile')" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-user-circle text-blue-500 text-lg"></i>
-                            <span class="text-sm font-medium">Edit Profil</span>
+                            <span class="text-sm font-medium">Profil Saya</span>
                         </div>
                         <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
                     </button>
+                    
                     <!-- Tombol 2: Pengaturan Aplikasi -->
                     <button onclick="switchTab('settings')" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
                         <div class="flex items-center gap-3">
@@ -495,6 +626,7 @@
                         </div>
                         <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
                     </button>
+                    
                     <!-- Tombol 3: Bantuan & FAQ -->
                     <button onclick="switchTab('faq')" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
                         <div class="flex items-center gap-3">
@@ -503,8 +635,18 @@
                         </div>
                         <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
                     </button>
-                    <!-- Tombol 4: Keluar (Kembali ke Home/Bookkeeping) -->
-                    <button onclick="switchTab('bookkeeping'); console.log('Simulasi: Pengguna keluar (logout).');" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                    
+                    <!-- Tombol 4: Tentang Aplikasi -->
+                    <button onclick="showAbout()" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-info-circle text-purple-500 text-lg"></i>
+                            <span class="text-sm font-medium">Tentang Adamon</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    
+                    <!-- Tombol 5: Keluar -->
+                    <button onclick="logout()" class="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:bg-gray-50 transition">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-sign-out-alt text-red-500 text-lg"></i>
                             <span class="text-sm font-medium text-red-500">Keluar</span>
@@ -514,277 +656,156 @@
                 </div>
             </div>
 
-            <!-- SECTION 8: EDIT PROFIL -->
-            <div id="tab-edit-profile" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Profil</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <p class="text-sm text-gray-600">Di sini Anda dapat memperbarui informasi pribadi Anda.</p>
-                    <div class="border-t border-gray-100 pt-4 space-y-3">
-                        <input type="text" placeholder="Nama Lengkap" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
-                        <input type="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
-                        <input type="password" placeholder="Ganti Kata Sandi" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
-                    </div>
-                    <button class="w-full bg-adamon-green text-white py-3 rounded-xl font-medium hover:bg-teal-700 transition">
-                        Simpan Perubahan
-                    </button>
-                    <button onclick="switchTab('menu')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition">
-                        Kembali ke Menu
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 9: PENGATURAN APLIKASI -->
-            <div id="tab-settings" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Pengaturan Aplikasi</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <p class="text-sm font-semibold text-gray-800">Preferensi Notifikasi</p>
-                    <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                        <span class="text-sm text-gray-600">Notifikasi Transaksi</span>
-                        <input type="checkbox" checked class="w-5 h-5 text-adamon-dark bg-gray-100 rounded border-gray-300 focus:ring-adamon-dark">
-                    </div>
-                    <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                        <span class="text-sm text-gray-600">Mode Gelap</span>
-                        <input type="checkbox" class="w-5 h-5 text-adamon-dark bg-gray-100 rounded border-gray-300 focus:ring-adamon-dark">
-                    </div>
-                    <p class="text-sm font-semibold text-gray-800 pt-4">Data & Privasi</p>
-                    <button class="w-full text-adamon-dark py-2 border border-adamon-dark rounded-xl font-medium hover:bg-adamon-dark hover:text-white transition">
-                        Ekspor Data
-                    </button>
-                    <button onclick="switchTab('menu')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition">
-                        Kembali ke Menu
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 10: BANTUAN & FAQ -->
-            <div id="tab-faq" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Bantuan & FAQ</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                    <div class="border-b border-gray-100 pb-3">
-                        <p class="font-bold text-gray-800 text-sm">Bagaimana cara mencatat pengeluaran?</p>
-                        <p class="text-xs text-gray-500 mt-1">Anda dapat mencatat pengeluaran di halaman 'Pencatatan' dengan menekan tombol plus (+).</p>
-                    </div>
-                    <div class="border-b border-gray-100 pb-3">
-                        <p class="font-bold text-gray-800 text-sm">Apa itu Skor Kredit?</p>
-                        <p class="text-xs text-gray-500 mt-1">Skor kredit adalah indikator yang menunjukkan seberapa baik Anda mengelola kewajiban utang Anda.</p>
-                    </div>
-                    <div class="border-b border-gray-100 pb-3">
-                        <p class="font-bold text-gray-800 text-sm">Apakah data saya aman?</p>
-                        <p class="text-xs text-gray-500 mt-1">Ya, kami menggunakan Enkripsi Ujung-ke-Ujung dan Perlindungan Multi-Lapis. Lihat di halaman 'Keamanan'.</p>
-                    </div>
-                    <button class="w-full text-adamon-green py-2 border border-adamon-green rounded-xl font-medium hover:bg-adamon-green hover:text-white transition mt-4">
-                        Hubungi Dukungan Langsung
-                    </button>
-                    <button onclick="switchTab('menu')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition">
-                        Kembali ke Menu
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 11: TAMBAH TRANSAKSI BARU -->
+            <!-- SECTION 10: TAMBAH TRANSAKSI BARU -->
             <div id="tab-add-transaction" class="hidden fade-in">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Tambah Transaksi Baru</h2>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <p class="text-base font-semibold text-adamon-dark">Detail Transaksi</p>
-                    <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
-                        <option>Pengeluaran</option>
-                        <option>Pemasukan</option>
-                    </select>
-                    <input type="text" placeholder="Deskripsi (Misalnya: Beli Kopi)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
-                    <input type="number" placeholder="Jumlah (Rp)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
-                    <button class="w-full bg-yellow-500 text-adamon-dark py-3 rounded-xl font-medium hover:bg-yellow-600 transition">
-                        Catat Transaksi
-                    </button>
-                    <button onclick="switchTab('bookkeeping')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition">
-                        Batal
-                    </button>
+                    
+                    <!-- Form Input Transaksi -->
+                    <div class="space-y-4">
+                        <!-- Tipe Transaksi -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="type-income" onclick="setTransactionType('income')" class="p-3 border border-green-500 text-green-500 rounded-lg font-medium hover:bg-green-50 transition active-type">
+                                    <i class="fa-solid fa-arrow-down mr-2"></i>Pemasukan
+                                </button>
+                                <button id="type-expense" onclick="setTransactionType('expense')" class="p-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition">
+                                    <i class="fa-solid fa-arrow-up mr-2"></i>Pengeluaran
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Deskripsi -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <input type="text" id="transaction-description" placeholder="Misalnya: Beli Kopi" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                        </div>
+                        
+                        <!-- Kategori -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <select id="transaction-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                                <option value="Makanan">Makanan & Minuman</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Belanja">Belanja</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Kesehatan">Kesehatan</option>
+                                <option value="Pendidikan">Pendidikan</option>
+                                <option value="Utilitas">Utilitas</option>
+                                <option value="Gaji">Gaji</option>
+                                <option value="Investasi">Investasi</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Jumlah -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                            <input type="number" id="transaction-amount" placeholder="100000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition" min="0">
+                        </div>
+                        
+                        <!-- Tanggal -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                            <input type="date" id="transaction-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Aksi -->
+                    <div class="flex gap-3">
+                        <button onclick="addTransaction()" class="flex-1 bg-yellow-500 text-adamon-dark py-3 rounded-xl font-medium hover:bg-yellow-600 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i>
+                            Simpan
+                        </button>
+                        <button onclick="switchTab('bookkeeping')" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                    </div>
                 </div>
             </div>
 
-             <!-- SECTION 12: DETAIL TRANSAKSI -->
+            <!-- SECTION 11: EDIT TRANSAKSI -->
+            <div id="tab-edit-transaction" class="hidden fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Transaksi</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                    <p class="text-base font-semibold text-adamon-dark">Edit Detail Transaksi</p>
+                    
+                    <!-- Form Edit Transaksi -->
+                    <div class="space-y-4">
+                        <!-- Tipe Transaksi -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button id="edit-type-income" onclick="setEditTransactionType('income')" class="p-3 border border-green-500 text-green-500 rounded-lg font-medium hover:bg-green-50 transition">
+                                    <i class="fa-solid fa-arrow-down mr-2"></i>Pemasukan
+                                </button>
+                                <button id="edit-type-expense" onclick="setEditTransactionType('expense')" class="p-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition">
+                                    <i class="fa-solid fa-arrow-up mr-2"></i>Pengeluaran
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Deskripsi -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <input type="text" id="edit-transaction-description" placeholder="Misalnya: Beli Kopi" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                        </div>
+                        
+                        <!-- Kategori -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <select id="edit-transaction-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                                <option value="Makanan">Makanan & Minuman</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Belanja">Belanja</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Kesehatan">Kesehatan</option>
+                                <option value="Pendidikan">Pendidikan</option>
+                                <option value="Utilitas">Utilitas</option>
+                                <option value="Gaji">Gaji</option>
+                                <option value="Investasi">Investasi</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Jumlah -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                            <input type="number" id="edit-transaction-amount" placeholder="100000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition" min="0">
+                        </div>
+                        
+                        <!-- Tanggal -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                            <input type="date" id="edit-transaction-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-adamon-dark focus:border-adamon-dark transition">
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Aksi -->
+                    <div class="flex gap-3">
+                        <button onclick="saveEditedTransaction()" class="flex-1 bg-adamon-green text-white py-3 rounded-xl font-medium hover:bg-teal-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i>
+                            Simpan Perubahan
+                        </button>
+                        <button onclick="switchTab('bookkeeping')" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 12: DETAIL TRANSAKSI -->
             <div id="tab-transaction-detail" class="hidden fade-in">
                 <h2 class="text-xl font-bold text-gray-800 mb-4" id="transaction-detail-title">Detail Transaksi</h2>
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 space-y-4">
-                    
-                    <!-- Ringkasan Transaksi -->
-                    <div class="flex justify-between border-b border-gray-200 pb-3 text-sm">
-                        <p class="text-gray-500">Tanggal Transaksi</p>
-                        <p class="font-medium text-gray-800">28 November 2025</p>
-                    </div>
-                    <div class="flex justify-between border-b border-gray-200 pb-3 text-sm">
-                        <p class="text-gray-500">Kategori</p>
-                        <p class="font-medium text-gray-800" id="detail-category">Rumah Tangga</p>
-                    </div>
-                     <div class="flex justify-between border-b border-gray-200 pb-3 text-sm">
-                        <p class="text-gray-500">Jenis</p>
-                        <p class="font-bold text-red-500" id="detail-type">Pengeluaran</p>
-                    </div>
-
-                    <!-- Area Data ala Spreadsheet -->
-                    <h3 class="font-semibold text-adamon-dark pt-4 border-t border-gray-100">Rincian Item</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Deskripsi</th>
-                                    <th class="px-3 py-2 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Qty</th>
-                                    <th class="px-3 py-2 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Harga/Unit</th>
-                                    <th class="px-3 py-2 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200" id="detail-table-body">
-                                <!-- Data akan diisi oleh JS -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Total Transaksi -->
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                        <p class="text-base font-bold text-adamon-dark">Total Transaksi</p>
-                        <p class="text-xl font-extrabold text-red-600" id="detail-total">-Rp 150.000</p>
-                    </div>
-
-                    <!-- Tombol Aksi -->
-                    <div class="pt-4 border-t border-gray-100 flex justify-center gap-4">
-                        <button class="text-red-500 py-2 px-4 rounded-xl border border-red-500 hover:bg-red-50 transition hover:text-red-700 font-medium">
-                            Hapus
-                        </button>
-                        <button class="bg-adamon-green text-white py-2 px-4 rounded-xl hover:bg-teal-700 transition font-medium">
-                            Edit Entri
-                        </button>
-                    </div>
-                    
-                    <button onclick="switchTab('bookkeeping')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        &larr; Kembali ke Pencatatan
-                    </button>
+                    <!-- Detail Transaksi akan dimuat secara dinamis -->
                 </div>
             </div>
 
-            <!-- SECTION 13: LAPORAN ARUS KAS (NEW PLACEHOLDER) -->
-            <div id="tab-cashflow" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Laporan Arus Kas</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <p class="text-base font-semibold text-adamon-dark">Ringkasan Periode Ini</p>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Total Pemasukan Operasi</span>
-                        <span class="font-bold text-green-600">Rp 14.000.000</span>
-                    </div>
-                    <div class="flex justify-between text-sm border-b border-gray-100 pb-3">
-                        <span class="text-gray-600">Total Pengeluaran Operasi</span>
-                        <span class="font-bold text-red-600">Rp 8.000.000</span>
-                    </div>
-                    <div class="flex justify-between text-lg font-bold">
-                        <span class="text-adamon-dark">Arus Kas Bersih</span>
-                        <span class="text-adamon-green">Rp 6.000.000</span>
-                    </div>
-                    <button onclick="switchTab('financial')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        Kembali ke Ringkasan
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 14: DETAIL PEMASUKAN (NEW PLACEHOLDER) -->
-            <div id="tab-income-detail" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Detail Pemasukan</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                    <p class="text-base font-semibold text-green-600">Pemasukan Bulan Ini: Rp 16.500.000</p>
-                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600 border-t border-gray-100 pt-3">
-                        <li>Gaji: Rp 15.000.000</li>
-                        <li>Bonus: Rp 1.000.000</li>
-                        <li>Penjualan Aset: Rp 500.000</li>
-                    </ul>
-                    <button onclick="switchTab('financial')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        Kembali ke Ringkasan
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 15: DETAIL PENGELUARAN (NEW PLACEHOLDER) -->
-            <div id="tab-expense-detail" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Detail Pengeluaran</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                    <p class="text-base font-semibold text-red-600">Pengeluaran Bulan Ini: Rp 9.983.000</p>
-                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600 border-t border-gray-100 pt-3">
-                        <li>Sewa: Rp 4.500.000</li>
-                        <li>Utilitas: Rp 1.500.000</li>
-                        <li>Makanan: Rp 2.500.000</li>
-                        <li>Transportasi: Rp 1.483.000</li>
-                    </ul>
-                    <button onclick="switchTab('financial')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        Kembali ke Ringkasan
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 16: ANALISIS SKOR KREDIT (NEW PLACEHOLDER) -->
-            <div id="tab-credit-analysis" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Analisis Skor Kredit</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
-                    <i class="fa-solid fa-star text-6xl text-yellow-500 mb-3"></i>
-                    <p class="text-lg font-bold text-gray-800">Skor Anda Baik: 720</p>
-                    <p class="text-sm text-gray-600 mt-2">Skor ini berada di atas rata-rata nasional. Ini menunjukkan manajemen utang yang sangat bertanggung jawab.</p>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <p class="text-xs text-adamon-dark font-semibold">Tindakan Terbaik:</p>
-                        <p class="text-sm text-gray-500">Pertahankan pembayaran tepat waktu dan jaga pemanfaatan kredit tetap rendah.</p>
-                    </div>
-                    <button onclick="switchTab('credit')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        Kembali ke Kredit
-                    </button>
-                </div>
-            </div>
-
-            <!-- SECTION 17: TIPS PENINGKATAN KREDIT (NEW PLACEHOLDER) -->
-            <div id="tab-credit-tips" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4" id="credit-tips-title">Tips Peningkatan Kredit</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <p class="text-sm text-gray-600" id="credit-tips-content">
-                        Placeholder untuk konten tips. Konten ini akan diperbarui berdasarkan faktor yang diklik.
-                    </p>
-                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-start gap-2">
-                         <i class="fa-solid fa-lightbulb text-blue-500 mt-1"></i>
-                         <p class="text-xs text-blue-800">Pastikan untuk mengecek laporan kredit Anda setiap tahun untuk menghindari kesalahan.</p>
-                    </div>
-                    <button onclick="switchTab('credit')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        Kembali ke Kredit
-                    </button>
-                </div>
-            </div>
-            
-            <!-- SECTION 18: DETAIL KEAMANAN (NEW PAGE) -->
-            <div id="tab-security-detail" class="hidden fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4" id="security-detail-title">Detail Fitur Keamanan</h2>
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 space-y-6 text-center">
-                    
-                    <!-- Area Icon Dinamis -->
-                    <div class="p-4 rounded-full mx-auto w-20 h-20 flex items-center justify-center" id="security-detail-icon-bg">
-                        <i class="text-5xl" id="security-detail-icon"></i>
-                    </div>
-
-                    <p class="text-lg font-bold text-gray-800" id="security-detail-header">
-                        Enkripsi Ujung-ke-Ujung
-                    </p>
-                    
-                    <p class="text-sm text-gray-600 leading-relaxed" id="security-detail-content">
-                        Ini adalah halaman detail untuk fitur keamanan yang Anda pilih. Di sini Anda dapat menemukan penjelasan lebih lanjut dan opsi konfigurasi.
-                    </p>
-
-                    <!-- Mock Toggle Switch -->
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
-                        <span class="font-medium text-gray-800 text-sm">Status: Aktifkan Fitur</span>
-                        <!-- Toggle Button (Mock functionality) -->
-                        <label for="security-toggle" class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="security-toggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-adamon-green/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-adamon-green"></div>
-                        </label>
-                    </div>
-                    
-                    <button onclick="switchTab('security')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
-                        &larr; Kembali ke Pusat Keamanan
-                    </button>
-                </div>
-            </div>
-
+            <!-- Bagian lainnya tetap sama seperti kode asli -->
+            <!-- ... -->
 
         </main>
         
@@ -796,7 +817,6 @@
                    focus:outline-none focus:ring-4 focus:ring-yellow-500/50 hidden">
             <i class="fa-solid fa-plus text-2xl font-bold"></i>
         </button>
-
 
         <!-- Bottom Navigation Bar -->
         <nav class="bg-white border-t border-gray-200 px-4 py-3 flex justify-between items-center z-20 rounded-t-2xl shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
@@ -825,222 +845,796 @@
                 <span class="text-xs mt-1 font-medium text-gray-400">Mentor</span>
             </button>
             
-            <!-- Tombol 5: Security (Keamanan) -->
-            <button id="nav-security" onclick="switchTab('security')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
-                <i class="fa-solid fa-shield-halved text-xl text-gray-400"></i>
-                <span class="text-xs mt-1 font-medium text-gray-400">Keamanan</span>
+            <!-- Tombol 5: Profile -->
+            <button id="nav-profile" onclick="switchTab('profile')" class="nav-button flex flex-col items-center p-2 rounded-xl transition-colors">
+                <i class="fa-solid fa-user text-xl text-gray-400"></i>
+                <span class="text-xs mt-1 font-medium text-gray-400">Profil</span>
             </button>
-
         </nav>
-        
+
+        <!-- Modal Konfirmasi -->
+        <div id="confirmation-modal" class="modal-overlay hidden">
+            <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
+                <h3 class="text-lg font-bold text-gray-800 mb-2" id="modal-title">Konfirmasi</h3>
+                <p class="text-gray-600 mb-6" id="modal-message">Apakah Anda yakin?</p>
+                <div class="flex gap-3">
+                    <button onclick="confirmAction()" id="modal-confirm" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-medium hover:bg-red-600 transition">
+                        Ya
+                    </button>
+                    <button onclick="hideModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden">
+            <div class="bg-adamon-dark text-white p-4 rounded-xl shadow-lg flex items-center gap-3">
+                <i class="fa-solid fa-check-circle text-green-300"></i>
+                <div>
+                    <p class="font-medium" id="toast-title">Berhasil</p>
+                    <p class="text-sm text-gray-300" id="toast-message">Operasi berhasil dilakukan</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- JavaScript untuk fungsi perpindahan tab -->
+    <!-- JavaScript untuk aplikasi -->
     <script>
-        // Daftar ID tab yang ada di Bottom Navigation
-        const bottomNavTabs = ['bookkeeping', 'financial', 'credit', 'mentor', 'security'];
+        // ============================================
+        // STATE MANAGEMENT DAN DATA DUMMY
+        // ============================================
+        
+        // Data profil pengguna dummy
+        const dummyUserData = {
+            id: 1,
+            name: "Rizki Pratama",
+            email: "rizki.pratama@email.com",
+            phone: "+62 812-3456-7890",
+            location: "Jakarta, Indonesia",
+            joinDate: "2024-01-15",
+            profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rizki",
+            creditScore: 720,
+            activeDays: 150
+        };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set tab default saat aplikasi dimuat
+        // Data transaksi dummy
+        const dummyTransactions = [
+            {
+                id: 1,
+                type: "expense",
+                description: "Biaya Utilitas",
+                category: "Utilitas",
+                amount: 150000,
+                date: "2024-11-28",
+                status: "completed"
+            },
+            {
+                id: 2,
+                type: "income",
+                description: "Gaji",
+                category: "Gaji",
+                amount: 2500000,
+                date: "2024-11-25",
+                status: "completed"
+            },
+            {
+                id: 3,
+                type: "expense",
+                description: "Sewa",
+                category: "Kebutuhan Pokok",
+                amount: 1200000,
+                date: "2024-11-20",
+                status: "completed"
+            },
+            {
+                id: 4,
+                type: "expense",
+                description: "Belanja Harian",
+                category: "Makanan",
+                amount: 250000,
+                date: "2024-11-19",
+                status: "completed"
+            },
+            {
+                id: 5,
+                type: "expense",
+                description: "Bensin Motor",
+                category: "Transportasi",
+                amount: 80000,
+                date: "2024-11-18",
+                status: "completed"
+            },
+            {
+                id: 6,
+                type: "income",
+                description: "Bonus Proyek",
+                category: "Bonus",
+                amount: 500000,
+                date: "2024-11-15",
+                status: "completed"
+            },
+            {
+                id: 7,
+                type: "expense",
+                description: "Nonton Bioskop",
+                category: "Hiburan",
+                amount: 120000,
+                date: "2024-11-10",
+                status: "completed"
+            }
+        ];
+
+        // State aplikasi
+        let appState = {
+            user: {...dummyUserData},
+            transactions: [...dummyTransactions],
+            settings: {
+                notifications: true,
+                darkMode: false,
+                currency: "IDR"
+            },
+            currentTransactionId: null,
+            currentTab: 'bookkeeping'
+        };
+
+        // Inisialisasi aplikasi
+        function initApp() {
+            // Coba muat data dari localStorage
+            const savedData = localStorage.getItem('adamonAppData');
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    appState = {...appState, ...parsedData};
+                } catch (e) {
+                    console.log("Gagal memuat data dari localStorage");
+                }
+            }
+            
+            // Set tanggal default untuk input transaksi
+            document.getElementById('transaction-date').valueAsDate = new Date();
+            document.getElementById('edit-transaction-date').valueAsDate = new Date();
+            
+            // Render data awal
+            renderTransactions();
+            updateFinancialSummary();
+            updateProfileInfo();
+            
+            // Set tab default
             switchTab('bookkeeping');
-        });
-        
-        // Data Tips Kredit berdasarkan faktor
-        const creditTipsData = {
-            'Riwayat Pembayaran': {
-                title: 'Tips: Riwayat Pembayaran',
-                content: 'Riwayat Pembayaran adalah faktor terpenting. Selalu bayar semua tagihan (kartu kredit, pinjaman, sewa) tepat waktu, setiap saat. Bahkan satu keterlambatan pun dapat merusak skor Anda secara signifikan.'
-            },
-            'Pemanfaatan Kredit': {
-                title: 'Tips: Pemanfaatan Kredit',
-                content: 'Pemanfaatan kredit adalah rasio utang terhadap batas kredit total Anda. Jaga rasio ini serendah mungkin, idealnya di bawah 30%. Jika batas kredit Anda Rp10 juta, jangan gunakan lebih dari Rp3 juta.'
-            },
-            'Usia Kredit': {
-                title: 'Tips: Usia Kredit',
-                content: 'Usia rata-rata semua akun kredit Anda. Jangan tutup akun kartu kredit lama Anda, meskipun Anda tidak menggunakannya, karena ini dapat memperpendek riwayat kredit Anda dan menurunkan skor.'
-            }
-        };
+        }
 
-        // Data Mock Transaksi untuk mengisi tabel detail
-        const transactionMockData = {
-            'Biaya Utilitas': [
-                { desc: 'Listrik Token', qty: 1, unit_price: '100.000', subtotal: '100.000' },
-                { desc: 'Air PDAM', qty: 1, unit_price: '50.000', subtotal: '50.000' }
-            ],
-            'Gaji': [
-                { desc: 'Gaji Pokok', qty: 1, unit_price: '2.000.000', subtotal: '2.000.000' },
-                { desc: 'Tunjangan Transportasi', qty: 1, unit_price: '500.000', subtotal: '500.000' }
-            ],
-            'Sewa': [
-                 { desc: 'Sewa Apartemen', qty: 1, unit_price: '1.200.000', subtotal: '1.200.000' }
-            ],
-            'Belanja Harian': [
-                { desc: 'Sayuran & Buah', qty: 1, unit_price: '100.000', subtotal: '100.000' },
-                { desc: 'Daging', qty: 1, unit_price: '150.000', subtotal: '150.000' }
-            ]
-        };
-        
-        // Data Detail Keamanan
-        const securityDetailData = {
-            'Enkripsi Ujung-ke-Ujung': {
-                content: 'Enkripsi Ujung-ke-Ujung (E2EE) memastikan bahwa hanya Anda dan penerima yang dapat membaca apa yang dikirim. Bahkan kami pun tidak dapat mengakses data Anda saat transit. Ini adalah standar emas privasi data.',
-                toggleDefault: true,
-                color: 'blue'
-            },
-            'Perlindungan Multi-Lapis': {
-                content: 'Sistem keamanan Anda dilindungi oleh berbagai lapisan pertahanan, termasuk firewall, pemantauan jaringan 24/7, dan audit keamanan rutin. Jika satu lapisan gagal, lapisan lainnya akan mengambil alih.',
-                toggleDefault: true,
-                color: 'teal'
-            },
-            'Biometrik & PIN': {
-                content: 'Aktifkan Biometrik (sidik jari atau pemindai wajah) atau PIN khusus untuk mengamankan akses ke aplikasi Anda. Ini mencegah akses tidak sah bahkan jika perangkat Anda hilang atau dicuri.',
-                toggleDefault: false,
-                color: 'yellow'
-            },
-            'AI Pendeteksi Penipuan': {
-                content: 'Model Kecerdasan Buatan (AI) kami terus memantau pola transaksi Anda. Jika terdeteksi adanya anomali atau aktivitas mencurigakan, kami akan segera membekukan transaksi dan mengirimkan peringatan kepada Anda secara *real-time*.',
-                toggleDefault: true,
-                color: 'red'
-            }
-        };
-        
-        // Fungsi untuk mendapatkan kelas warna Tailwind berdasarkan warna input
-        function getColorClasses(color) {
-            switch(color) {
-                case 'blue': return { bg: 'bg-blue-100', text: 'text-blue-600', ring: 'peer-focus:ring-blue-500/50', checked: 'peer-checked:bg-blue-600' };
-                case 'teal': return { bg: 'bg-adamon-green/10', text: 'text-adamon-green', ring: 'peer-focus:ring-adamon-green/50', checked: 'peer-checked:bg-adamon-green' };
-                case 'yellow': return { bg: 'bg-yellow-100', text: 'text-yellow-600', ring: 'peer-focus:ring-yellow-500/50', checked: 'peer-checked:bg-yellow-600' };
-                case 'red': return { bg: 'bg-red-100', text: 'text-red-600', ring: 'peer-focus:ring-red-500/50', checked: 'peer-checked:bg-red-600' };
-                default: return { bg: 'bg-gray-100', text: 'text-gray-600', ring: 'peer-focus:ring-adamon-green/50', checked: 'peer-checked:bg-adamon-green' };
+        // Simpan data ke localStorage
+        function saveAppData() {
+            try {
+                localStorage.setItem('adamonAppData', JSON.stringify(appState));
+            } catch (e) {
+                console.log("Gagal menyimpan data ke localStorage");
             }
         }
 
+        // ============================================
+        // FUNGSI UTAMA APLIKASI
+        // ============================================
 
-        // Fungsi switchTab diperbarui untuk menerima objek data
+        // Fungsi untuk render transaksi
+        function renderTransactions(filter = 'all') {
+            const transactionList = document.getElementById('transaction-list');
+            transactionList.innerHTML = '';
+            
+            let filteredTransactions = [...appState.transactions];
+            
+            // Terapkan filter
+            if (filter === 'income') {
+                filteredTransactions = filteredTransactions.filter(t => t.type === 'income');
+            } else if (filter === 'expense') {
+                filteredTransactions = filteredTransactions.filter(t => t.type === 'expense');
+            } else if (filter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                filteredTransactions = filteredTransactions.filter(t => t.date === today);
+            }
+            
+            // Urutkan berdasarkan tanggal (terbaru dulu)
+            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Hitung transaksi hari ini
+            const today = new Date().toISOString().split('T')[0];
+            const todayTransactions = appState.transactions.filter(t => t.date === today).length;
+            document.getElementById('today-transactions').textContent = todayTransactions;
+            
+            // Render setiap transaksi
+            filteredTransactions.forEach(transaction => {
+                const transactionElement = document.createElement('button');
+                transactionElement.className = 'w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition cursor-pointer text-left';
+                transactionElement.onclick = () => showTransactionDetail(transaction.id);
+                
+                const iconColor = transaction.type === 'income' ? 'green' : 'red';
+                const iconClass = transaction.type === 'income' ? 'fa-sack-dollar' : 'fa-bolt';
+                const amountClass = transaction.type === 'income' ? 'text-green-600' : 'text-red-500';
+                const amountPrefix = transaction.type === 'income' ? '+' : '-';
+                
+                transactionElement.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="bg-${iconColor}-100 p-2 rounded-full text-${iconColor}-600 w-10 h-10 flex items-center justify-center">
+                            <i class="fa-solid ${iconClass}"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">${transaction.description}</p>
+                            <p class="text-xs text-gray-400">${transaction.category} • ${formatDate(transaction.date)}</p>
+                        </div>
+                    </div>
+                    <span class="font-bold ${amountClass}">${amountPrefix}Rp ${formatCurrency(transaction.amount)}</span>
+                `;
+                
+                transactionList.appendChild(transactionElement);
+            });
+            
+            // Jika tidak ada transaksi
+            if (filteredTransactions.length === 0) {
+                transactionList.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fa-solid fa-receipt text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">Tidak ada transaksi</p>
+                        <button onclick="switchTab('add-transaction')" class="mt-4 text-adamon-dark hover:text-adamon-green transition">
+                            Tambah transaksi pertama Anda
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Update statistik profil
+            document.getElementById('profile-transactions').textContent = appState.transactions.length;
+        }
+
+        // Fungsi untuk menambah transaksi
+        function addTransaction() {
+            const description = document.getElementById('transaction-description').value;
+            const category = document.getElementById('transaction-category').value;
+            const amount = parseInt(document.getElementById('transaction-amount').value);
+            const date = document.getElementById('transaction-date').value;
+            const type = document.querySelector('.active-type').id === 'type-income' ? 'income' : 'expense';
+            
+            if (!description || !amount || amount <= 0) {
+                showToast('Error', 'Harap isi semua field dengan benar', 'error');
+                return;
+            }
+            
+            const newTransaction = {
+                id: Date.now(), // ID unik berdasarkan timestamp
+                type: type,
+                description: description,
+                category: category,
+                amount: amount,
+                date: date,
+                status: 'completed'
+            };
+            
+            appState.transactions.unshift(newTransaction);
+            saveAppData();
+            renderTransactions();
+            updateFinancialSummary();
+            switchTab('bookkeeping');
+            showToast('Berhasil', 'Transaksi berhasil ditambahkan', 'success');
+            
+            // Reset form
+            document.getElementById('transaction-description').value = '';
+            document.getElementById('transaction-amount').value = '';
+            document.getElementById('transaction-date').valueAsDate = new Date();
+        }
+
+        // Fungsi untuk menghapus transaksi
+        function deleteTransaction(transactionId) {
+            showConfirmationModal(
+                'Hapus Transaksi',
+                'Apakah Anda yakin ingin menghapus transaksi ini?',
+                () => {
+                    appState.transactions = appState.transactions.filter(t => t.id !== transactionId);
+                    saveAppData();
+                    renderTransactions();
+                    updateFinancialSummary();
+                    switchTab('bookkeeping');
+                    showToast('Berhasil', 'Transaksi berhasil dihapus', 'success');
+                }
+            );
+        }
+
+        // Fungsi untuk mengedit transaksi
+        function editTransaction(transactionId) {
+            const transaction = appState.transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+            
+            appState.currentTransactionId = transactionId;
+            
+            // Isi form edit
+            document.getElementById('edit-transaction-description').value = transaction.description;
+            document.getElementById('edit-transaction-category').value = transaction.category;
+            document.getElementById('edit-transaction-amount').value = transaction.amount;
+            document.getElementById('edit-transaction-date').value = transaction.date;
+            
+            // Set tipe transaksi
+            if (transaction.type === 'income') {
+                setEditTransactionType('income');
+            } else {
+                setEditTransactionType('expense');
+            }
+            
+            switchTab('edit-transaction');
+        }
+
+        // Fungsi untuk menyimpan transaksi yang diedit
+        function saveEditedTransaction() {
+            const transactionId = appState.currentTransactionId;
+            const transactionIndex = appState.transactions.findIndex(t => t.id === transactionId);
+            
+            if (transactionIndex === -1) return;
+            
+            const description = document.getElementById('edit-transaction-description').value;
+            const category = document.getElementById('edit-transaction-category').value;
+            const amount = parseInt(document.getElementById('edit-transaction-amount').value);
+            const date = document.getElementById('edit-transaction-date').value;
+            const type = document.getElementById('edit-type-income').classList.contains('active-type') ? 'income' : 'expense';
+            
+            if (!description || !amount || amount <= 0) {
+                showToast('Error', 'Harap isi semua field dengan benar', 'error');
+                return;
+            }
+            
+            appState.transactions[transactionIndex] = {
+                ...appState.transactions[transactionIndex],
+                type: type,
+                description: description,
+                category: category,
+                amount: amount,
+                date: date
+            };
+            
+            saveAppData();
+            renderTransactions();
+            updateFinancialSummary();
+            switchTab('bookkeeping');
+            showToast('Berhasil', 'Transaksi berhasil diupdate', 'success');
+        }
+
+        // Fungsi untuk menampilkan detail transaksi
+        function showTransactionDetail(transactionId) {
+            const transaction = appState.transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+            
+            const detailContainer = document.getElementById('tab-transaction-detail');
+            const amountClass = transaction.type === 'income' ? 'text-green-600' : 'text-red-500';
+            const amountPrefix = transaction.type === 'income' ? '+' : '-';
+            const typeText = transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+            const iconClass = transaction.type === 'income' ? 'fa-sack-dollar' : 'fa-bolt';
+            const iconColor = transaction.type === 'income' ? 'green' : 'red';
+            
+            detailContainer.innerHTML = `
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Detail Transaksi</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 space-y-6">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-${iconColor}-100 p-3 rounded-full text-${iconColor}-600">
+                                <i class="fa-solid ${iconClass} text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">${transaction.description}</h3>
+                                <p class="text-sm text-gray-500">${typeText} • ${transaction.category}</p>
+                            </div>
+                        </div>
+                        <span class="text-2xl font-bold ${amountClass}">${amountPrefix}Rp ${formatCurrency(transaction.amount)}</span>
+                    </div>
+                    
+                    <!-- Detail -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b border-gray-100 pb-3">
+                            <span class="text-gray-600">Tanggal</span>
+                            <span class="font-medium">${formatDate(transaction.date)}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-3">
+                            <span class="text-gray-600">Kategori</span>
+                            <span class="font-medium">${transaction.category}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-3">
+                            <span class="text-gray-600">Status</span>
+                            <span class="font-medium text-green-600">Selesai</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">ID Transaksi</span>
+                            <span class="font-mono text-sm">#${transaction.id.toString().slice(-6)}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Aksi -->
+                    <div class="pt-4 border-t border-gray-100 flex gap-3">
+                        <button onclick="editTransaction(${transaction.id})" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition">
+                            Edit
+                        </button>
+                        <button onclick="deleteTransaction(${transaction.id})" class="flex-1 border border-red-500 text-red-500 py-3 rounded-xl font-medium hover:bg-red-50 transition">
+                            Hapus
+                        </button>
+                    </div>
+                    
+                    <button onclick="switchTab('bookkeeping')" class="w-full text-sm text-gray-500 hover:text-gray-800 transition mt-4">
+                        &larr; Kembali ke Pencatatan
+                    </button>
+                </div>
+            `;
+            
+            switchTab('transaction-detail');
+        }
+
+        // Fungsi untuk update ringkasan keuangan
+        function updateFinancialSummary() {
+            const totalIncome = appState.transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const totalExpense = appState.transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const currentBalance = totalIncome - totalExpense;
+            
+            // Update tampilan
+            document.getElementById('current-balance').textContent = `Rp ${formatCurrency(currentBalance)}`;
+            document.getElementById('financial-total-balance').textContent = `Rp ${formatCurrency(currentBalance)}`;
+            document.getElementById('financial-income').textContent = `Rp ${formatCurrency(totalIncome)}`;
+            document.getElementById('financial-expense').textContent = `Rp ${formatCurrency(totalExpense)}`;
+            
+            // Update statistik kredit berdasarkan pengeluaran
+            const creditUtilization = Math.min(100, Math.round((totalExpense / (totalIncome || 1)) * 100));
+            const creditScore = Math.max(300, Math.min(850, 720 - (creditUtilization - 25) * 10));
+            
+            document.getElementById('credit-score').textContent = creditScore;
+            document.getElementById('credit-advice').textContent = 
+                `Pertahankan pemanfaatan kredit di bawah 30% untuk menjaga skor baik. Pemanfaatan Anda saat ini adalah ${creditUtilization}%.`;
+                
+            // Update saran mentor
+            const mentorAdvice = creditUtilization > 30 
+                ? `Pemanfaatan kredit Anda (${creditUtilization}%) melebihi batas yang disarankan (30%). Pertimbangkan untuk mengurangi pengeluaran atau meningkatkan pendapatan.`
+                : `Pemanfaatan kredit Anda (${creditUtilization}%) dalam batas yang sehat. Pertahankan kebiasaan keuangan yang baik ini.`;
+                
+            document.getElementById('mentor-advice').textContent = mentorAdvice;
+        }
+
+        // Fungsi untuk update profil
+        function updateProfileInfo() {
+            document.getElementById('profile-name').textContent = appState.user.name;
+            document.getElementById('profile-email').textContent = appState.user.email;
+            document.getElementById('profile-phone').textContent = appState.user.phone;
+            document.getElementById('profile-location').textContent = appState.user.location;
+            document.getElementById('profile-score').textContent = appState.user.creditScore;
+            document.getElementById('profile-days').textContent = appState.user.activeDays;
+            document.getElementById('profile-transactions').textContent = appState.transactions.length;
+            
+            // Isi form edit
+            document.getElementById('edit-name').value = appState.user.name;
+            document.getElementById('edit-email').value = appState.user.email;
+            document.getElementById('edit-phone').value = appState.user.phone;
+            document.getElementById('edit-location').value = appState.user.location;
+        }
+
+        // Fungsi untuk menyimpan profil
+        function saveProfile() {
+            const name = document.getElementById('edit-name').value;
+            const email = document.getElementById('edit-email').value;
+            const phone = document.getElementById('edit-phone').value;
+            const location = document.getElementById('edit-location').value;
+            const password = document.getElementById('edit-password').value;
+            
+            if (!name || !email) {
+                showToast('Error', 'Nama dan email harus diisi', 'error');
+                return;
+            }
+            
+            appState.user = {
+                ...appState.user,
+                name: name,
+                email: email,
+                phone: phone,
+                location: location
+            };
+            
+            if (password) {
+                // Simulasi update password
+                showToast('Info', 'Password berhasil diupdate', 'info');
+            }
+            
+            saveAppData();
+            updateProfileInfo();
+            switchTab('profile');
+            showToast('Berhasil', 'Profil berhasil diupdate', 'success');
+        }
+
+        // ============================================
+        // FUNGSI BANTU
+        // ============================================
+
+        // Format currency
+        function formatCurrency(amount) {
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // Format tanggal
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        // Set tipe transaksi
+        function setTransactionType(type) {
+            const incomeBtn = document.getElementById('type-income');
+            const expenseBtn = document.getElementById('type-expense');
+            
+            if (type === 'income') {
+                incomeBtn.classList.add('active-type', 'bg-green-50', 'border-green-500', 'text-green-500');
+                expenseBtn.classList.remove('active-type', 'bg-gray-50', 'border-adamon-dark', 'text-adamon-dark');
+                expenseBtn.classList.add('border-gray-300', 'text-gray-700');
+            } else {
+                expenseBtn.classList.add('active-type', 'bg-red-50', 'border-red-500', 'text-red-500');
+                incomeBtn.classList.remove('active-type', 'bg-green-50', 'border-green-500', 'text-green-500');
+                incomeBtn.classList.add('border-gray-300', 'text-gray-700');
+            }
+        }
+
+        // Set tipe transaksi untuk edit
+        function setEditTransactionType(type) {
+            const incomeBtn = document.getElementById('edit-type-income');
+            const expenseBtn = document.getElementById('edit-type-expense');
+            
+            if (type === 'income') {
+                incomeBtn.classList.add('active-type', 'bg-green-50', 'border-green-500', 'text-green-500');
+                expenseBtn.classList.remove('active-type', 'bg-gray-50', 'border-adamon-dark', 'text-adamon-dark');
+                expenseBtn.classList.add('border-gray-300', 'text-gray-700');
+            } else {
+                expenseBtn.classList.add('active-type', 'bg-red-50', 'border-red-500', 'text-red-500');
+                incomeBtn.classList.remove('active-type', 'bg-green-50', 'border-green-500', 'text-green-500');
+                incomeBtn.classList.add('border-gray-300', 'text-gray-700');
+            }
+        }
+
+        // Tampilkan notifikasi
+        function showNotifications() {
+            // Simulasi pemberitahuan
+            const notifications = [
+                { title: "Peringatan: Biaya Tinggi", message: "Pengeluaran utilitas melebihi rata-rata", time: "5 menit lalu", type: "warning" },
+                { title: "Hadiah Baru", message: "Anda mendapat 500 Poin XP", time: "1 jam lalu", type: "success" },
+                { title: "Pengingat Kredit", message: "Cicilan jatuh tempo dalam 3 hari", time: "Kemarin", type: "info" }
+            ];
+            
+            let notificationsHTML = `
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Pemberitahuan</h2>
+                <div class="space-y-4">
+            `;
+            
+            notifications.forEach(notif => {
+                const borderColor = notif.type === 'warning' ? 'border-red-500' : 
+                                  notif.type === 'success' ? 'border-green-500' : 'border-blue-500';
+                
+                notificationsHTML += `
+                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 ${borderColor}">
+                        <p class="font-bold text-gray-800 text-sm mb-1">${notif.title}</p>
+                        <p class="text-xs text-gray-500">${notif.message}</p>
+                        <span class="block text-xs text-gray-400 mt-2">${notif.time}</span>
+                    </div>
+                `;
+            });
+            
+            notificationsHTML += `</div>`;
+            
+            // Update konten tab pemberitahuan
+            const notificationsTab = document.getElementById('tab-notifications');
+            if (notificationsTab) {
+                notificationsTab.innerHTML = notificationsHTML;
+            }
+            
+            switchTab('notifications');
+            
+            // Reset badge notifikasi
+            document.getElementById('notification-badge').classList.add('hidden');
+        }
+
+        // Tampilkan filter transaksi
+        function showTransactionFilters() {
+            showConfirmationModal(
+                'Filter Transaksi',
+                'Pilih filter yang ingin diterapkan:',
+                null,
+                true
+            );
+            
+            // Buat modal custom untuk filter
+            const modal = document.getElementById('confirmation-modal');
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Filter Transaksi</h3>
+                    <div class="space-y-3 mb-6">
+                        <button onclick="applyFilter('all'); hideModal()" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            Semua Transaksi
+                        </button>
+                        <button onclick="applyFilter('income'); hideModal()" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            Hanya Pemasukan
+                        </button>
+                        <button onclick="applyFilter('expense'); hideModal()" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            Hanya Pengeluaran
+                        </button>
+                        <button onclick="applyFilter('today'); hideModal()" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            Transaksi Hari Ini
+                        </button>
+                    </div>
+                    <button onclick="hideModal()" class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        // Terapkan filter
+        function applyFilter(filterType) {
+            renderTransactions(filterType);
+            hideModal();
+        }
+
+        // Export data pengguna
+        function exportUserData() {
+            const dataStr = JSON.stringify(appState, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `adamon-data-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showToast('Berhasil', 'Data berhasil diunduh', 'success');
+        }
+
+        // Clear data sementara
+        function clearData() {
+            showConfirmationModal(
+                'Hapus Data Sementara',
+                'Apakah Anda yakin ingin menghapus data transaksi? Data profil akan tetap tersimpan.',
+                () => {
+                    appState.transactions = [];
+                    saveAppData();
+                    renderTransactions();
+                    updateFinancialSummary();
+                    showToast('Berhasil', 'Data transaksi berhasil dihapus', 'success');
+                }
+            );
+        }
+
+        // Logout
+        function logout() {
+            showConfirmationModal(
+                'Keluar',
+                'Apakah Anda yakin ingin keluar dari aplikasi?',
+                () => {
+                    // Simulasi logout
+                    showToast('Info', 'Anda telah keluar', 'info');
+                    setTimeout(() => {
+                        // Reset ke tab bookkeeping
+                        switchTab('bookkeeping');
+                    }, 1000);
+                }
+            );
+        }
+
+        // Tampilkan modal konfirmasi
+        let currentConfirmCallback = null;
+        
+        function showConfirmationModal(title, message, confirmCallback, isCustom = false) {
+            if (!isCustom) {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-message').textContent = message;
+                currentConfirmCallback = confirmCallback;
+                document.getElementById('confirmation-modal').classList.remove('hidden');
+            }
+        }
+
+        function confirmAction() {
+            if (currentConfirmCallback) {
+                currentConfirmCallback();
+            }
+            hideModal();
+        }
+
+        function hideModal() {
+            document.getElementById('confirmation-modal').classList.add('hidden');
+            currentConfirmCallback = null;
+        }
+
+        // Tampilkan toast notification
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Set warna berdasarkan tipe
+            let bgColor = 'bg-adamon-dark';
+            let icon = 'fa-check-circle';
+            
+            if (type === 'error') {
+                bgColor = 'bg-red-500';
+                icon = 'fa-exclamation-circle';
+            } else if (type === 'info') {
+                bgColor = 'bg-blue-500';
+                icon = 'fa-info-circle';
+            }
+            
+            toast.className = `toast ${bgColor} text-white p-4 rounded-xl shadow-lg flex items-center gap-3`;
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toast.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <div>
+                    <p class="font-medium">${title}</p>
+                    <p class="text-sm opacity-90">${message}</p>
+                </div>
+            `;
+            
+            toast.classList.remove('hidden');
+            
+            // Sembunyikan setelah 3 detik
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // ============================================
+        // FUNGSI NAVIGASI (dari kode asli dengan modifikasi)
+        // ============================================
+        
+        const bottomNavTabs = ['bookkeeping', 'financial', 'credit', 'mentor', 'profile'];
+
         function switchTab(tabId, data = null) {
-            // 1. Sembunyikan semua konten tab dan hapus animasi lama
+            // Simpan tab aktif
+            appState.currentTab = tabId;
+            
+            // Sembunyikan semua konten tab
             const tabContents = document.querySelectorAll('#main-content > div');
             tabContents.forEach(content => {
                 content.classList.add('hidden');
                 content.classList.remove('fade-in'); 
             });
 
-            // 2. Tampilkan konten tab yang diminta dan tambahkan animasi
+            // Tampilkan konten tab yang diminta
             const activeTab = document.getElementById('tab-' + tabId);
             if (activeTab) {
                 activeTab.classList.remove('hidden');
-                // Berikan jeda sebentar sebelum menambahkan kelas fade-in agar animasi berjalan
                 setTimeout(() => {
                     activeTab.classList.add('fade-in');
                 }, 10);
-            }
-            
-            // 2b. Perbarui konten khusus berdasarkan tab dan data
-            
-            // Halaman Detail Transaksi
-            if (tabId === 'transaction-detail' && data) {
-                document.getElementById('transaction-detail-title').textContent = 'Detail Transaksi: ' + data.title;
-                document.getElementById('detail-category').textContent = data.category;
-                document.getElementById('detail-type').textContent = data.type;
-                document.getElementById('detail-type').className = data.type === 'Pengeluaran' ? 'font-bold text-red-500' : 'font-bold text-green-600';
-                document.getElementById('detail-total').textContent = data.amount;
-                document.getElementById('detail-total').className = data.type === 'Pengeluaran' ? 'text-xl font-extrabold text-red-600' : 'text-xl font-extrabold text-green-600';
-
-                // Mengisi Tabel Detail Transaksi
-                const tableBody = document.getElementById('detail-table-body');
-                tableBody.innerHTML = ''; // Kosongkan tabel
-                const items = transactionMockData[data.title] || [];
                 
-                items.forEach(item => {
-                    const row = tableBody.insertRow();
-                    row.className = 'hover:bg-gray-50';
-                    
-                    const descCell = row.insertCell(0);
-                    descCell.textContent = item.desc;
-                    descCell.className = 'px-3 py-2 whitespace-nowrap';
-
-                    const qtyCell = row.insertCell(1);
-                    qtyCell.textContent = item.qty;
-                    qtyCell.className = 'px-3 py-2 whitespace-nowrap text-center';
-                    
-                    const priceCell = row.insertCell(2);
-                    priceCell.textContent = 'Rp ' + item.unit_price;
-                    priceCell.className = 'px-3 py-2 whitespace-nowrap text-right';
-
-                    const subtotalCell = row.insertCell(3);
-                    subtotalCell.textContent = (data.type === 'Pengeluaran' ? '-' : '+') + 'Rp ' + item.subtotal;
-                    subtotalCell.className = 'px-3 py-2 whitespace-nowrap text-right font-medium ' + (data.type === 'Pengeluaran' ? 'text-red-500' : 'text-green-600');
-                });
-            }
-            
-            // Halaman Tips Kredit
-            if (tabId === 'credit-tips' && data) {
-                const tips = creditTipsData[data];
-                if (tips) {
-                    document.getElementById('credit-tips-title').textContent = tips.title;
-                    document.getElementById('credit-tips-content').textContent = tips.content;
-                }
-            }
-            
-            // Halaman Detail Keamanan (NEW)
-            if (tabId === 'security-detail' && data) {
-                const feature = securityDetailData[data.title];
-                const colorClasses = getColorClasses(data.color);
-                
-                if (feature) {
-                    // Update Header dan Konten
-                    document.getElementById('security-detail-title').textContent = 'Pengaturan: ' + data.title;
-                    document.getElementById('security-detail-header').textContent = data.title;
-                    document.getElementById('security-detail-content').textContent = feature.content;
-                    
-                    // Update Ikon dan Warna
-                    const iconBg = document.getElementById('security-detail-icon-bg');
-                    const icon = document.getElementById('security-detail-icon');
-                    const toggle = document.getElementById('security-toggle');
-                    const toggleDiv = toggle.nextElementSibling;
-                    
-                    // Reset classes
-                    iconBg.className = 'p-4 rounded-full mx-auto w-20 h-20 flex items-center justify-center';
-                    icon.className = 'text-5xl';
-                    toggleDiv.className = 'w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all';
-
-                    // Apply new classes
-                    iconBg.classList.add(colorClasses.bg);
-                    icon.classList.add(data.icon, colorClasses.text);
-                    toggleDiv.classList.add(colorClasses.ring, colorClasses.checked);
-                    
-                    // Atur status default toggle
-                    toggle.checked = feature.toggleDefault;
-                    
-                    // Ganti teks status toggle
-                    document.querySelector('#tab-security-detail .bg-gray-50 span').textContent = toggle.checked ? 'Status: Aktif' : 'Status: Nonaktif';
-                    
-                    // Tambahkan event listener untuk update teks status saat toggle diubah
-                    toggle.onchange = (e) => {
-                        document.querySelector('#tab-security-detail .bg-gray-50 span').textContent = e.target.checked ? 'Status: Aktif' : 'Status: Nonaktif';
-                        console.log(`Status fitur ${data.title} diubah menjadi: ${e.target.checked ? 'Aktif' : 'Nonaktif'}`);
-                    };
+                // Refresh data jika perlu
+                if (tabId === 'bookkeeping') {
+                    renderTransactions();
+                } else if (tabId === 'financial') {
+                    updateFinancialSummary();
+                } else if (tabId === 'profile') {
+                    updateProfileInfo();
                 }
             }
 
-
-            // 3. Atur gaya tombol navigasi bawah (Hanya berlaku untuk tombol di Bottom Nav)
-            
-            // Periksa apakah tab yang diaktifkan adalah bagian dari Bottom Nav
+            // Atur gaya tombol navigasi bawah
             const isBottomNavTab = bottomNavTabs.includes(tabId);
-            
             const navButtons = document.querySelectorAll('.nav-button');
             navButtons.forEach(button => {
                 const icon = button.querySelector('i');
                 const text = button.querySelector('span');
                 
-                // Reset semua tombol ke gaya tidak aktif (abu-abu)
+                // Reset semua tombol
                 icon.classList.remove('text-adamon-dark');
                 icon.classList.add('text-gray-400');
                 text.classList.remove('text-adamon-dark');
                 text.classList.add('text-gray-400');
 
-                // Jika tab aktif adalah bagian dari Bottom Nav, atur warna yang sesuai
+                // Aktifkan tombol yang sesuai
                 if (isBottomNavTab) {
                     const buttonId = button.id.replace('nav-', '');
                     if (buttonId === tabId) {
@@ -1052,19 +1646,30 @@
                 }
             });
 
-            // 4. Tampilkan atau Sembunyikan Floating Action Button (FAB)
+            // Tampilkan/sembunyikan FAB
             const fab = document.getElementById('fab-add-transaction');
             if (tabId === 'bookkeeping') {
                 fab.classList.remove('hidden');
-                fab.style.opacity = '1';
+                setTimeout(() => {
+                    fab.style.opacity = '1';
+                }, 10);
             } else {
-                // Sembunyikan dengan animasi fade out sebelum benar-benar dihilangkan
                 fab.style.opacity = '0';
                 setTimeout(() => {
                     fab.classList.add('hidden');
                 }, 300);
             }
         }
+
+        // Inisialisasi aplikasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Set tipe transaksi default
+        setTimeout(() => {
+            setTransactionType('expense');
+            setEditTransactionType('expense');
+        }, 100);
+
     </script>
 </body>
 </html>

@@ -120,24 +120,30 @@
                 <h1 class="font-bold text-lg tracking-wide">ADAMON</h1>
             </button>
             
-            <div class="flex gap-4 items-center">
-                <!-- Tombol Premium -->
-                <button onclick="showPremiumFeatures()" class="premium-badge text-xs font-bold px-3 py-1 rounded-full text-adamon-dark flex items-center gap-1 btn-press hover:scale-105 transition">
+       <!-- Di dalam header section -->
+        <div class="flex gap-4 items-center">
+            <!-- Tombol Premium yang diperbaiki -->
+            <button onclick="showPremiumModal()" class="relative group">
+                <div class="bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 btn-press hover:opacity-90 transition shadow-lg">
                     <i class="fa-solid fa-crown"></i>
-                    PREMIUM
-                </button>
-                
-                <!-- Tombol Pemberitahuan -->
-                <button onclick="showNotificationsModal()" class="relative btn-press hover:text-yellow-400 transition text-xl">
-                    <i class="fa-regular fa-bell"></i>
-                    <span id="notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                </button>
-                
-                <!-- Tombol Menu -->
-                <button onclick="switchTab('menu')" class="btn-press hover:text-yellow-400 transition text-xl">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
+                    <span>PREMIUM</span>
+                </div>
+                <div class="absolute -top-8 right-0 bg-adamon-dark text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Lihat Fitur Premium
+                </div>
+            </button>
+            
+            <!-- Tombol Pemberitahuan -->
+            <button onclick="showNotificationsModal()" class="relative btn-press hover:text-yellow-400 transition text-xl">
+                <i class="fa-regular fa-bell"></i>
+                <span id="notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+            </button>
+            
+            <!-- Tombol Menu -->
+            <button onclick="switchTab('menu')" class="btn-press hover:text-yellow-400 transition text-xl">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
         </header>
 
         <!-- Main Content -->
@@ -647,12 +653,16 @@
                     </button>
                     
                     <!-- Tombol 5: Fitur Premium -->
-                    <button onclick="showPremiumFeatures()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:opacity-90 transition btn-press">
+                    <!-- Di dalam tab-menu section -->
+                    <button onclick="showPremiumModal()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark p-4 rounded-xl shadow-sm flex items-center justify-between text-left hover:opacity-90 transition btn-press">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-crown text-adamon-dark text-lg"></i>
                             <span class="text-sm font-bold">Fitur Premium</span>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-adamon-dark text-xs"></i>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium">Coba Gratis</span>
+                            <i class="fa-solid fa-chevron-right text-adamon-dark text-xs"></i>
+                        </div>
                     </button>
                     
                     <!-- Tombol 6: Keluar -->
@@ -1279,70 +1289,79 @@
         }
 
         // 9. Fungsi untuk tombol premium
-        function showPremiumFeatures() {
+        function showPremiumModal() {
             showModal('Fitur Premium Adamon', `
                 <div class="space-y-6">
                     <div class="text-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fa-solid fa-crown text-white text-3xl"></i>
+                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <i class="fa-solid fa-crown text-white text-2xl"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-800">Upgrade ke Premium</h3>
-                        <p class="text-gray-600">Buka semua fitur eksklusif untuk manajemen keuangan yang lebih baik</p>
+                        <p class="text-sm text-gray-600 mt-1">Buka semua fitur eksklusif untuk manajemen keuangan yang lebih baik</p>
                     </div>
                     
-                    <div class="space-y-3">
-                        <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                            <i class="fa-solid fa-check-circle text-green-500 mt-1"></i>
+                    <div class="space-y-4">
+                        <!-- Fitur Premium 1 -->
+                        <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-robot text-blue-600"></i>
+                            </div>
                             <div>
                                 <p class="font-medium text-gray-800">Analisis AI Lanjutan</p>
-                                <p class="text-sm text-gray-600">Prediksi keuangan dan rekomendasi investasi personal</p>
+                                <p class="text-xs text-gray-600">Prediksi keuangan & rekomendasi investasi personal</p>
                             </div>
                         </div>
                         
-                        <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                            <i class="fa-solid fa-check-circle text-blue-500 mt-1"></i>
+                        <!-- Fitur Premium 2 -->
+                        <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-file-export text-green-600"></i>
+                            </div>
                             <div>
                                 <p class="font-medium text-gray-800">Ekspor Data Unlimited</p>
-                                <p class="text-sm text-gray-600">Ekspor laporan ke format PDF, Excel, CSV tanpa batas</p>
+                                <p class="text-xs text-gray-600">Ekspor laporan ke PDF, Excel tanpa batas</p>
                             </div>
                         </div>
                         
-                        <div class="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                            <i class="fa-solid fa-check-circle text-purple-500 mt-1"></i>
+                        <!-- Fitur Premium 3 -->
+                        <div class="flex items-start gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-headset text-purple-600"></i>
+                            </div>
                             <div>
                                 <p class="font-medium text-gray-800">Dukungan Prioritas</p>
-                                <p class="text-sm text-gray-600">Akses langsung ke spesialis keuangan 24/7</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
-                            <i class="fa-solid fa-check-circle text-yellow-500 mt-1"></i>
-                            <div>
-                                <p class="font-medium text-gray-800">Laporan Detil</p>
-                                <p class="text-sm text-gray-600">Laporan analisis mendalam dengan visualisasi profesional</p>
+                                <p class="text-xs text-gray-600">Akses langsung ke spesialis keuangan 24/7</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="bg-gradient-to-r from-adamon-dark to-teal-700 p-4 rounded-xl text-white text-center">
-                        <p class="text-sm mb-1">Harga Spesial</p>
+                    <!-- Harga -->
+                    <div class="bg-gradient-to-r from-adamon-dark to-teal-700 p-4 rounded-xl text-white text-center shadow-md">
+                        <p class="text-sm opacity-90 mb-1">Harga Spesial</p>
                         <p class="text-3xl font-bold">Rp 49.999<span class="text-lg">/bulan</span></p>
                         <p class="text-xs opacity-80 mt-1">Atau Rp 499.999/tahun (hemat 16%)</p>
                     </div>
                     
-                    <div class="space-y-2">
-                        <button onclick="subscribePremium()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-adamon-dark py-3 rounded-xl font-bold hover:from-yellow-500 hover:to-orange-600 transition btn-press">
-                            <i class="fa-solid fa-crown mr-2"></i>
+                    <!-- Tombol Aksi -->
+                    <div class="space-y-3">
+                        <button onclick="subscribePremium()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark py-3 rounded-xl font-bold hover:from-yellow-500 hover:to-orange-500 transition flex items-center justify-center gap-2 btn-press shadow-lg">
+                            <i class="fa-solid fa-crown"></i>
                             Upgrade Sekarang
                         </button>
-                        <button onclick="closeModal('modal-' + (Date.now() - 1))" class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
+                        
+                        <button onclick="closeModal('modal-' + (Date.now() - 1))" class="w-full text-sm text-gray-500 hover:text-gray-700 transition btn-press">
                             Nanti Saja
                         </button>
+                    </div>
+                    
+                    <!-- Info Tambahan -->
+                    <div class="pt-4 border-t border-gray-200">
+                        <p class="text-xs text-center text-gray-500">✅ 30 hari garansi uang kembali • 🔒 Pembayaran aman • 📱 Bisa diakses di semua perangkat</p>
                     </div>
                 </div>
             `);
         }
-
+        
         // ============================================
         // FUNGSI BANTU LAINNYA
         // ============================================
@@ -2615,4 +2634,5 @@
     </script>
 </body>
 </html>
+
 

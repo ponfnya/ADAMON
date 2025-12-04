@@ -1666,7 +1666,7 @@
                 })
                 .reduce((sum, t) => sum + t.amount, 0);
             
-            const incomeChange = lastMonthIncome > 0 ? 
+            const incomeChange = incomeLastMonth > 0 ? 
                 ((incomeThisMonth - incomeLastMonth) / incomeLastMonth * 100).toFixed(1) : 0;
             
             // Hitung breakdown per kategori
@@ -3027,5 +3027,6 @@
     </script>
 </body>
 </html>
+
 
 

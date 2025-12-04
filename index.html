@@ -1799,6 +1799,49 @@
                 </div>
             `);
         }
+
+                            
+            // ============================================
+            // FUNGSI FILTER TRANSAKSI
+            // ============================================
+            function showTransactionFilters() {
+                showModal('Filter Transaksi', `
+                    <div class="space-y-3">
+                        <button onclick="applyFilter('all')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                            <div class="flex items-center justify-between">
+                                <span>Semua Transaksi</span>
+                                ${appState.currentFilter === 'all' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                            </div>
+                        </button>
+                        <button onclick="applyFilter('income')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                            <div class="flex items-center justify-between">
+                                <span>Hanya Pemasukan</span>
+                                ${appState.currentFilter === 'income' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                            </div>
+                        </button>
+                        <button onclick="applyFilter('expense')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                            <div class="flex items-center justify-between">
+                                <span>Hanya Pengeluaran</span>
+                                ${appState.currentFilter === 'expense' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                            </div>
+                        </button>
+                        <button onclick="applyFilter('today')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                            <div class="flex items-center justify-between">
+                                <span>Hari Ini Saja</span>
+                                ${appState.currentFilter === 'today' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                            </div>
+                        </button>
+                    </div>
+                `);
+            }
+    
+            function applyFilter(type) {
+                appState.currentFilter = type;
+                updateTransactionList();
+                closeCurrentModal();
+                showToast(`Filter "${type}" diterapkan`, 'info');
+            }
+
  
             // ============================================
             // FUNGSI BANTUAN
@@ -1847,30 +1890,6 @@
         // ============================================
         // FUNGSI BANTU LAINNYA (DISEDERHANAKAN)
         // ============================================
-
-        function showTransactionFilters() {
-            showModal('Filter Transaksi', `
-                <div class="space-y-3">
-                    <button onclick="applyFilter('all')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Semua Transaksi
-                    </button>
-                    <button onclick="applyFilter('income')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Hanya Pemasukan
-                    </button>
-                    <button onclick="applyFilter('expense')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Hanya Pengeluaran
-                    </button>
-                    <button onclick="applyFilter('today')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Hari Ini Saja
-                    </button>
-                </div>
-            `);
-        }
-
-        function applyFilter(type) {
-            showToast(`Filter "${type}" diterapkan`, 'info');
-            closeCurrentModal();
-        }
 
         function showTodayTransactions() {
             const today = new Date().toISOString().split('T')[0];
@@ -2994,6 +3013,7 @@
     </script>
 </body>
 </html>
+
 
 
 

@@ -1324,48 +1324,6 @@
         }
 
         // ============================================
-        // FUNGSI FILTER TRANSAKSI
-        // ============================================
-
-        function showTransactionFilters() {
-            showModal('Filter Transaksi', `
-                <div class="space-y-3">
-                    <button onclick="applyFilter('all')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        <div class="flex items-center justify-between">
-                            <span>Semua Transaksi</span>
-                            ${appState.currentFilter === 'all' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
-                        </div>
-                    </button>
-                    <button onclick="applyFilter('income')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        <div class="flex items-center justify-between">
-                            <span>Hanya Pemasukan</span>
-                            ${appState.currentFilter === 'income' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
-                        </div>
-                    </button>
-                    <button onclick="applyFilter('expense')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        <div class="flex items-center justify-between">
-                            <span>Hanya Pengeluaran</span>
-                            ${appState.currentFilter === 'expense' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
-                        </div>
-                    </button>
-                    <button onclick="applyFilter('today')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        <div class="flex items-center justify-between">
-                            <span>Hari Ini Saja</span>
-                            ${appState.currentFilter === 'today' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
-                        </div>
-                    </button>
-                </div>
-            `);
-        }
-
-        function applyFilter(type) {
-            appState.currentFilter = type;
-            updateTransactionList();
-            closeCurrentModal();
-            showToast(`Filter "${type}" diterapkan`, 'info');
-        }
-
-        // ============================================
         // FUNGSI PREMIUM YANG SUDAH DIPERBAIKI
         // ============================================
 
@@ -1639,35 +1597,39 @@
         // FUNGSI DETAIL PEMASUKAN DI RINGKASAN
         // ============================================
         
-        function showIncomeDetailModal() {
-            // Hitung total pemasukan dari transaksi
-            const incomeTransactions = appState.transactions.filter(t => t.type === 'income');
-            const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-            
-            // Hitung pemasukan bulan ini
-            const currentMonth = new Date().getMonth() + 1;
-            const currentYear = new Date().getFullYear();
-            const incomeThisMonth = incomeTransactions
-                .filter(t => {
-                    const transDate = new Date(t.date);
-                    return transDate.getMonth() + 1 === currentMonth && 
-                           transDate.getFullYear() === currentYear;
-                })
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            // Hitung persentase perubahan dari bulan lalu
-            const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-            const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
-            const incomeLastMonth = incomeTransactions
-                .filter(t => {
-                    const transDate = new Date(t.date);
-                    return transDate.getMonth() + 1 === lastMonth && 
-                           transDate.getFullYear() === lastMonthYear;
-                })
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            const incomeChange = lastMonthIncome > 0 ? 
-                ((incomeThisMonth - incomeLastMonth) / incomeLastMonth * 100).toFixed(1) : 0;
+             function showIncomeDetailModal() {
+                // Hitung total pemasukan dari transaksi
+                const incomeTransactions = appState.transactions.filter(t => t.type === 'income');
+                const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+                
+                // Hitung pemasukan bulan ini
+                const currentMonth = new Date().getMonth() + 1;
+                const currentYear = new Date().getFullYear();
+                const incomeThisMonth = incomeTransactions
+                    .filter(t => {
+                        const transDate = new Date(t.date);
+                        return transDate.getMonth() + 1 === currentMonth && 
+                               transDate.getFullYear() === currentYear;
+                    })
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                // Hitung persentase perubahan dari bulan lalu
+                const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+                const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+                const incomeLastMonth = incomeTransactions
+                    .filter(t => {
+                        const transDate = new Date(t.date);
+                        return transDate.getMonth() + 1 === lastMonth && 
+                               transDate.getFullYear() === lastMonthYear;
+                    })
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                // PERBAIKAN: gunakan incomeLastMonth, bukan lastMonthIncome
+                const incomeChange = incomeLastMonth > 0 ? 
+                    ((incomeThisMonth - incomeLastMonth) / incomeLastMonth * 100).toFixed(1) : 0;
+                
+                // ... sisanya tetap sama ...
+            }
             
             // Hitung breakdown per kategori
             const categoryBreakdown = {};
@@ -1901,8 +1863,10 @@
         }
 
         function applyFilter(type) {
-            showToast(`Filter "${type}" diterapkan`, 'info');
+            appState.currentFilter = type;
+            updateTransactionList(); // INI YANG DITAMBAHKAN
             closeCurrentModal();
+            showToast(`Filter "${type}" diterapkan`, 'info');
         }
 
         function showTodayTransactions() {
@@ -3027,6 +2991,7 @@
     </script>
 </body>
 </html>
+
 
 
 

@@ -1890,74 +1890,6 @@
         // FUNGSI BANTU LAINNYA (DISEDERHANAKAN)
         // ============================================
 
-        function showTransactionDetail(id) {
-            const trans = appState.transactions.find(t => t.id === id);
-            if (!trans) return;
-            
-            showModal(`Detail: ${trans.desc}`, `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600">Jumlah</span>
-                        <span class="text-xl font-bold ${trans.type === 'income' ? 'text-green-600' : 'text-red-500'}">
-                            ${trans.type === 'income' ? '+' : '-'}Rp ${formatCurrency(trans.amount)}
-                        </span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Kategori</span>
-                        <span class="font-medium">${trans.category}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Tanggal</span>
-                        <span class="font-medium">${trans.date}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Jenis</span>
-                        <span class="font-medium">${trans.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</span>
-                    </div>
-                </div>
-            `, {
-                confirm: true,
-                confirmText: 'Edit',
-                cancelText: 'Hapus',
-                confirmAction: `editTransaction(${id})`
-            });
-        }
-
-        function editTransaction(id) {
-            showToast('Fitur edit transaksi sedang dikembangkan', 'info');
-            closeCurrentModal();
-        }
-
-        function showQuickStats() {
-            const income = appState.transactions.filter(t => t.type === 'income')
-                         .reduce((sum, t) => sum + t.amount, 0);
-            const expense = appState.transactions.filter(t => t.type === 'expense')
-                          .reduce((sum, t) => sum + t.amount, 0);
-            
-            showModal('Statistik Cepat', `
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-green-50 p-4 rounded-xl">
-                            <p class="text-xs text-green-700">Total Pemasukan</p>
-                            <p class="text-lg font-bold text-green-800">Rp ${formatCurrency(income)}</p>
-                        </div>
-                        <div class="bg-red-50 p-4 rounded-xl">
-                            <p class="text-xs text-red-700">Total Pengeluaran</p>
-                            <p class="text-lg font-bold text-red-800">Rp ${formatCurrency(expense)}</p>
-                        </div>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-xl">
-                        <p class="text-xs text-blue-700">Saldo Saat Ini</p>
-                        <p class="text-lg font-bold text-blue-800">Rp ${formatCurrency(income - expense)}</p>
-                    </div>
-                    <div class="bg-purple-50 p-4 rounded-xl">
-                        <p class="text-xs text-purple-700">Transaksi Bulan Ini</p>
-                        <p class="text-lg font-bold text-purple-800">${appState.transactions.length}</p>
-                    </div>
-                </div>
-            `);
-        }
-
         function showTransactionFilters() {
             showModal('Filter Transaksi', `
                 <div class="space-y-3">
@@ -3104,6 +3036,7 @@
     </script>
 </body>
 </html>
+
 
 
 

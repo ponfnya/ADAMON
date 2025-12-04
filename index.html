@@ -146,7 +146,7 @@
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-5 pb-24" id="main-content">
-            
+
             <!-- SECTION 1: PENCATATAN KEUANGAN -->
             <div id="tab-bookkeeping" class="fade-in">
                 <div class="flex justify-between items-center mb-4">
@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <!-- SECTION 2: RINGKASAN KEUANGAN (DIPERBAIKI) -->
+            <!-- SECTION 2: RINGKASAN KEUANGAN -->
             <div id="tab-financial" class="hidden fade-in">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold text-gray-800">Ringkasan Keuangan</h2>
@@ -206,8 +206,8 @@
                     </button>
                 </div>
                 
-                <!-- Total Balance Card (Sekarang bisa dipencet) -->
-                <button onclick="showBalanceAnalysis()" class="w-full bg-gradient-to-r from-adamon-dark to-teal-700 p-5 rounded-2xl shadow-lg mb-6 text-left btn-press hover:shadow-xl active:scale-[0.98]">
+                <!-- Total Balance Card -->
+                <button onclick="showBalanceAnalysis()" class="w-full bg-gradient-to-r from-adamon-dark to-teal-700 p-5 rounded-2xl shadow-lg mb-6 text-left btn-press hover:shadow-xl">
                     <div class="flex justify-between items-start mb-2">
                         <p class="text-teal-100 text-sm">Total Saldo</p>
                         <span class="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-bold">+22%</span>
@@ -226,10 +226,10 @@
                     </div>
                 </button>
 
-                <!-- Quick Stats (DIPERBAIKI - sekarang bisa dipencet) -->
+                <!-- Quick Stats -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <!-- Pemasukan Card -->
-                    <button onclick="showIncomeDetailModal()" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-left btn-press hover:shadow-md active:scale-[0.98]">
+                    <button onclick="showIncomeDetailModal()" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-left btn-press hover:shadow-md">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-xs text-gray-500">Pemasukan</p>
                             <i class="fa-solid fa-arrow-trend-up text-green-500"></i>
@@ -242,7 +242,7 @@
                     </button>
                     
                     <!-- Pengeluaran Card -->
-                    <button onclick="showExpenseDetailModal()" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-left btn-press hover:shadow-md active:scale-[0.98]">
+                    <button onclick="showExpenseDetailModal()" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-left btn-press hover:shadow-md">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-xs text-gray-500">Pengeluaran</p>
                             <i class="fa-solid fa-arrow-trend-down text-red-500"></i>
@@ -716,7 +716,7 @@
 
     </div>
 
-    <!-- JavaScript -->
+       <!-- JavaScript -->
     <script>
         // ============================================
         // STATE & DATA
@@ -754,11 +754,12 @@
                 { id: 4, type: "expense", desc: "Belanja Harian", category: "Makanan", amount: 250000, date: "2024-11-19" }
             ],
             currentTab: 'bookkeeping',
-            security: {
-                encryption: true,
-                biometric: false,
-                twoFactor: true
-            }
+            currentFilter: 'all',
+            notifications: [
+                { id: 1, type: 'info', title: 'Selamat Datang', message: 'Selamat menggunakan Adamon!', time: 'Baru saja', read: false },
+                { id: 2, type: 'success', title: 'Pembayaran Berhasil', message: 'Pembayaran tagihan listrik berhasil', time: '10:30', read: false },
+                { id: 3, type: 'warning', title: 'Pengingat Budget', message: 'Budget makanan hampir habis', time: 'Kemarin', read: true }
+            ]
         };
 
         // ============================================
@@ -768,7 +769,7 @@
         function initApp() {
             updateTransactionList();
             updateBalance();
-            setupEventListeners();
+            updateNotificationBadge();
             showWelcomeToast();
         }
 
@@ -776,7 +777,19 @@
             const list = document.getElementById('transaction-list');
             if (!list) return;
             
-            list.innerHTML = appState.transactions.map(trans => `
+            let filteredTransactions = appState.transactions;
+            
+            // Terapkan filter
+            if (appState.currentFilter === 'income') {
+                filteredTransactions = appState.transactions.filter(t => t.type === 'income');
+            } else if (appState.currentFilter === 'expense') {
+                filteredTransactions = appState.transactions.filter(t => t.type === 'expense');
+            } else if (appState.currentFilter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                filteredTransactions = appState.transactions.filter(t => t.date === today);
+            }
+            
+            list.innerHTML = filteredTransactions.map(trans => `
                 <button onclick="showTransactionDetail(${trans.id})" 
                         class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition btn-press">
                     <div class="flex items-center gap-3">
@@ -811,8 +824,7 @@
         function formatCurrency(amount) {
             return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
-
-        // ============================================
+  // ============================================
         // TAB NAVIGATION
         // ============================================
 
@@ -858,6 +870,7 @@
             }
         }
 
+
         // ============================================
         // MODAL SYSTEM
         // ============================================
@@ -866,7 +879,7 @@
             const modalId = 'modal-' + Date.now();
             const modalHTML = `
                 <div id="${modalId}" class="modal-overlay">
-                    <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl animate-scale">
+                    <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl max-h-[80vh] overflow-y-auto">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-bold text-gray-800">${title}</h3>
                             <button onclick="closeCurrentModal()" class="text-gray-400 hover:text-gray-600 btn-press">
@@ -898,19 +911,11 @@
             document.getElementById('modal-container').innerHTML = modalHTML;
         }
 
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('hidden');
-                setTimeout(() => modal.remove(), 300);
-            }
-        }
-
         function closeCurrentModal() {
             const modals = document.querySelectorAll('.modal-overlay');
             if (modals.length > 0) {
                 const lastModal = modals[modals.length - 1];
-                closeModal(lastModal.id);
+                lastModal.remove();
             }
         }
 
@@ -966,7 +971,7 @@
         }
 
         // ============================================
-        // FUNGSI TAMBAH PEMASUKAN & PENGELUARAN BARU
+        // FUNGSI TAMBAH PEMASUKAN & PENGELUARAN
         // ============================================
 
         function showAddIncomeForm() {
@@ -988,8 +993,6 @@
                             <option value="Gaji">Gaji</option>
                             <option value="Bonus">Bonus</option>
                             <option value="Investasi">Investasi</option>
-                            <option value="Freelance">Freelance</option>
-                            <option value="Hadiah">Hadiah</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
                     </div>
@@ -998,17 +1001,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
                         <input type="date" id="income-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
                     </div>
-                    
-                    <div class="flex gap-3">
-                        <button onclick="saveIncomeTransaction()" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
-                            Simpan
-                        </button>
-                        <button onclick="closeCurrentModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
-                            Batal
-                        </button>
-                    </div>
                 </div>
-            `);
+            `, {
+                confirm: true,
+                confirmText: 'Simpan',
+                cancelText: 'Batal',
+                confirmAction: 'saveIncomeTransaction()'
+            });
         }
 
         function showAddExpenseForm() {
@@ -1030,9 +1029,6 @@
                             <option value="Makanan">Makanan & Minuman</option>
                             <option value="Transportasi">Transportasi</option>
                             <option value="Belanja">Belanja</option>
-                            <option value="Hiburan">Hiburan</option>
-                            <option value="Kesehatan">Kesehatan</option>
-                            <option value="Pendidikan">Pendidikan</option>
                             <option value="Tagihan">Tagihan & Utilitas</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
@@ -1042,17 +1038,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
                         <input type="date" id="expense-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
                     </div>
-                    
-                    <div class="flex gap-3">
-                        <button onclick="saveExpenseTransaction()" class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
-                            Simpan
-                        </button>
-                        <button onclick="closeCurrentModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
-                            Batal
-                        </button>
-                    </div>
                 </div>
-            `);
+            `, {
+                confirm: true,
+                confirmText: 'Simpan',
+                cancelText: 'Batal',
+                confirmAction: 'saveExpenseTransaction()'
+            });
         }
 
         function saveIncomeTransaction() {
@@ -1083,24 +1075,14 @@
             appState.transactions.unshift(newTrans);
             updateTransactionList();
             
-            // Update income data
+            // Update financial data
             appState.financialData.income += amount;
-            if (category === 'Gaji') {
-                appState.financialData.incomeBreakdown.gaji += amount;
-            } else if (category === 'Bonus') {
-                appState.financialData.incomeBreakdown.bonus += amount;
-            } else {
-                appState.financialData.incomeBreakdown.lainnya += amount;
-            }
-            
-            // Update user balance
             appState.user.balance += amount;
             
-            // Update display
             updateBalance();
             
             closeCurrentModal();
-            showToast('Pemasukan berhasil ditambahkan! 🎉', 'success');
+            showToast('Pemasukan berhasil ditambahkan!', 'success');
         }
 
         function saveExpenseTransaction() {
@@ -1131,38 +1113,209 @@
             appState.transactions.unshift(newTrans);
             updateTransactionList();
             
-            // Update expense data
+            // Update financial data
             appState.financialData.expense += amount;
-            if (category === 'Makanan') {
-                appState.financialData.expenseBreakdown.makanan += amount;
-            } else if (category === 'Transportasi') {
-                appState.financialData.expenseBreakdown.transportasi += amount;
-            } else if (category === 'Tagihan') {
-                appState.financialData.expenseBreakdown.sewa += amount;
-            } else {
-                appState.financialData.expenseBreakdown.lainnya += amount;
-            }
-            
-            // Update user balance
             appState.user.balance -= amount;
             
-            // Update display
             updateBalance();
             
             closeCurrentModal();
-            showToast('Pengeluaran berhasil dicatat! 💰', 'success');
+            showToast('Pengeluaran berhasil dicatat!', 'success');
+        }
+
+        function showQuickAddMenu() {
+            showModal('Tambah Cepat', `
+                <div class="space-y-3">
+                    <button onclick="showAddIncomeForm()" class="w-full bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-green-100">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-money-bill-wave text-green-600"></i>
+                            <span>Tambah Pemasukan</span>
+                        </div>
+                        <i class="fa-solid fa-plus text-green-600"></i>
+                    </button>
+                    <button onclick="showAddExpenseForm()" class="w-full bg-red-50 border border-red-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-red-100">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-utensils text-red-600"></i>
+                            <span>Tambah Pengeluaran</span>
+                        </div>
+                        <i class="fa-solid fa-plus text-red-600"></i>
+                    </button>
+                </div>
+            `);
         }
 
         // ============================================
-        // FUNGSI UNTUK TOMBOL "Tambah Pemasukan" & "Tambah Pengeluaran"
+        // FUNGSI DETAIL PEMASUKAN & PENGELUARAN
         // ============================================
 
-        function quickAddTransaction(type) {
-            if (type === 'income') {
-                showAddIncomeForm();
-            } else if (type === 'expense') {
-                showAddExpenseForm();
+        function showIncomeDetailModal() {
+            const incomeTransactions = appState.transactions.filter(t => t.type === 'income');
+            const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            showModal('Detail Pemasukan', `
+                <div class="space-y-4">
+                    <!-- Total Pemasukan -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 p-4 rounded-xl">
+                        <p class="text-xs text-green-700 mb-1">Total Pemasukan</p>
+                        <p class="text-2xl font-bold text-green-800">Rp ${formatCurrency(totalIncome)}</p>
+                    </div>
+                    
+                    <!-- Daftar Transaksi -->
+                    <div>
+                        <p class="font-medium text-gray-800 mb-2">Transaksi Pemasukan:</p>
+                        <div class="space-y-2 max-h-48 overflow-y-auto">
+                            ${incomeTransactions.length > 0 ? incomeTransactions.map(trans => `
+                                <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium">${trans.desc}</p>
+                                        <p class="text-xs text-gray-500">${trans.date} • ${trans.category}</p>
+                                    </div>
+                                    <span class="text-sm font-bold text-green-600">+Rp ${formatCurrency(trans.amount)}</span>
+                                </div>
+                            `).join('') : `
+                                <div class="text-center py-4 text-gray-500">
+                                    <i class="fa-solid fa-coins text-2xl mb-2 opacity-50"></i>
+                                    <p class="text-sm">Belum ada transaksi pemasukan</p>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Tambah -->
+                    <button onclick="showAddIncomeForm()" class="w-full bg-green-500 text-white py-3 rounded-xl font-medium hover:bg-green-600 transition btn-press">
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Pemasukan
+                    </button>
+                </div>
+            `);
+        }
+
+        function showExpenseDetailModal() {
+            const expenseTransactions = appState.transactions.filter(t => t.type === 'expense');
+            const totalExpense = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            showModal('Detail Pengeluaran', `
+                <div class="space-y-4">
+                    <!-- Total Pengeluaran -->
+                    <div class="bg-gradient-to-r from-red-50 to-pink-100 p-4 rounded-xl">
+                        <p class="text-xs text-red-700 mb-1">Total Pengeluaran</p>
+                        <p class="text-2xl font-bold text-red-800">Rp ${formatCurrency(totalExpense)}</p>
+                    </div>
+                    
+                    <!-- Daftar Transaksi -->
+                    <div>
+                        <p class="font-medium text-gray-800 mb-2">Transaksi Pengeluaran:</p>
+                        <div class="space-y-2 max-h-48 overflow-y-auto">
+                            ${expenseTransactions.length > 0 ? expenseTransactions.map(trans => `
+                                <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg">
+                                    <div>
+                                        <p class="text-sm font-medium">${trans.desc}</p>
+                                        <p class="text-xs text-gray-500">${trans.date} • ${trans.category}</p>
+                                    </div>
+                                    <span class="text-sm font-bold text-red-600">-Rp ${formatCurrency(trans.amount)}</span>
+                                </div>
+                            `).join('') : `
+                                <div class="text-center py-4 text-gray-500">
+                                    <i class="fa-solid fa-shopping-cart text-2xl mb-2 opacity-50"></i>
+                                    <p class="text-sm">Belum ada transaksi pengeluaran</p>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Tambah -->
+                    <button onclick="showAddExpenseForm()" class="w-full bg-red-500 text-white py-3 rounded-xl font-medium hover:bg-red-600 transition btn-press">
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Pengeluaran
+                    </button>
+                </div>
+            `);
+        }
+
+        // ============================================
+        // FUNGSI NOTIFIKASI
+        // ============================================
+
+        function showNotificationsModal() {
+            const notificationsHTML = appState.notifications.map(notif => `
+                <div class="flex items-start gap-3 p-3 ${notif.read ? 'bg-gray-50' : 'bg-blue-50'} rounded-lg">
+                    <div class="w-8 h-8 ${notif.read ? 'bg-gray-200' : 'bg-blue-200'} rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid ${notif.type === 'info' ? 'fa-info-circle text-blue-600' : notif.type === 'success' ? 'fa-check-circle text-green-600' : 'fa-exclamation-triangle text-yellow-600'}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <p class="font-medium text-gray-800">${notif.title}</p>
+                            <span class="text-xs text-gray-500">${notif.time}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">${notif.message}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            showModal('Notifikasi', `
+                <div class="space-y-3">
+                    ${notificationsHTML}
+                    <button onclick="markAllNotificationsAsRead()" class="w-full bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
+                        Tandai Sudah Dibaca Semua
+                    </button>
+                </div>
+            `);
+        }
+
+        function markAllNotificationsAsRead() {
+            appState.notifications.forEach(notif => notif.read = true);
+            updateNotificationBadge();
+            closeCurrentModal();
+            showToast('Semua notifikasi ditandai sudah dibaca', 'success');
+        }
+
+        function updateNotificationBadge() {
+            const unreadCount = appState.notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notification-badge');
+            if (badge) {
+                badge.textContent = unreadCount;
+                badge.classList.toggle('hidden', unreadCount === 0);
             }
+        }
+
+        // ============================================
+        // FUNGSI FILTER TRANSAKSI
+        // ============================================
+
+        function showTransactionFilters() {
+            showModal('Filter Transaksi', `
+                <div class="space-y-3">
+                    <button onclick="applyFilter('all')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                        <div class="flex items-center justify-between">
+                            <span>Semua Transaksi</span>
+                            ${appState.currentFilter === 'all' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                        </div>
+                    </button>
+                    <button onclick="applyFilter('income')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                        <div class="flex items-center justify-between">
+                            <span>Hanya Pemasukan</span>
+                            ${appState.currentFilter === 'income' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                        </div>
+                    </button>
+                    <button onclick="applyFilter('expense')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                        <div class="flex items-center justify-between">
+                            <span>Hanya Pengeluaran</span>
+                            ${appState.currentFilter === 'expense' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                        </div>
+                    </button>
+                    <button onclick="applyFilter('today')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
+                        <div class="flex items-center justify-between">
+                            <span>Hari Ini Saja</span>
+                            ${appState.currentFilter === 'today' ? '<i class="fa-solid fa-check text-green-500"></i>' : ''}
+                        </div>
+                    </button>
+                </div>
+            `);
+        }
+
+        function applyFilter(type) {
+            appState.currentFilter = type;
+            updateTransactionList();
+            closeCurrentModal();
+            showToast(`Filter "${type}" diterapkan`, 'info');
         }
 
         // ============================================
@@ -3037,3 +3190,4 @@
     </script>
 </body>
 </html>
+

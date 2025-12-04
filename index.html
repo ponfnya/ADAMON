@@ -110,26 +110,24 @@
 
     <!-- Mobile Container -->
     <div class="w-full max-w-md bg-gray-50 h-screen shadow-2xl relative overflow-hidden flex flex-col">
-        
-        <!-- Header dengan tombol premium -->
-        <header class="bg-adamon-dark text-white p-5 pt-10 rounded-b-3xl shadow-md z-20 flex justify-between items-center">
-            <button onclick="showAppInfo()" class="flex items-center gap-2 btn-press active:scale-95">
-                <div class="bg-yellow-400 p-1 rounded-full">
-                    <i class="fa-solid fa-skull text-adamon-dark text-xs"></i> 
-                </div>
-                <h1 class="font-bold text-lg tracking-wide">ADAMON</h1>
-            </button>
             
-       <!-- Di dalam header section -->
+    <!-- Header dengan tombol premium -->
+    <header class="bg-adamon-dark text-white p-5 pt-10 rounded-b-3xl shadow-md z-20 flex justify-between items-center">
+        <button onclick="showAppInfo()" class="flex items-center gap-2 btn-press active:scale-95">
+            <!-- Logo Adamon yang diperbaiki -->
+            <div class="bg-yellow-400 p-2 rounded-full flex items-center justify-center">
+                <img src="adamon-logo.png" alt="Adamon Logo" class="w-8 h-8 object-contain">
+            </div>
+            <h1 class="font-bold text-lg tracking-wide">ADAMON</h1>
+        </button>
+        
+        <!-- Tombol lainnya tetap sama -->
         <div class="flex gap-4 items-center">
-            <!-- Tombol Premium yang diperbaiki -->
+            <!-- Tombol Premium -->
             <button onclick="showPremiumModal()" class="relative group">
                 <div class="bg-gradient-to-r from-yellow-400 to-orange-400 text-adamon-dark text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 btn-press hover:opacity-90 transition shadow-lg">
                     <i class="fa-solid fa-crown"></i>
                     <span>PREMIUM</span>
-                </div>
-                <div class="absolute -top-8 right-0 bg-adamon-dark text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    Lihat Fitur Premium
                 </div>
             </button>
             
@@ -144,7 +142,7 @@
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
-        </header>
+    </header>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-5 pb-24" id="main-content">
@@ -1316,7 +1314,511 @@
                 }
             }, 1500);
         }
-
+        // ============================================
+        // FUNGSI NOTIFIKASI LENGKAP
+        // ============================================
+        
+        function showNotificationsModal() {
+            // Tandai semua notifikasi sebagai sudah dibaca saat modal dibuka
+            const unreadCount = appState.notifications.filter(n => !n.read).length;
+            if (unreadCount > 0) {
+                appState.notifications.forEach(notif => notif.read = true);
+                updateNotificationBadge();
+            }
+            
+            const notificationsHTML = appState.notifications.map(notif => `
+                <div class="flex items-start gap-3 p-3 ${notif.read ? 'bg-gray-50' : 'bg-blue-50'} rounded-lg mb-2 transition-all hover:scale-[1.02]">
+                    <div class="w-8 h-8 ${getNotificationColorClass(notif.type)} rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid ${getNotificationIcon(notif.type)} ${getNotificationTextColorClass(notif.type)}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <p class="font-medium text-gray-800">${notif.title}</p>
+                            <span class="text-xs text-gray-500">${formatNotificationTime(notif.time)}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">${notif.message}</p>
+                        ${!notif.read ? `<span class="inline-block w-2 h-2 bg-red-500 rounded-full mt-1"></span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            showModal('Notifikasi', `
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-sm font-medium text-gray-700">Total: ${appState.notifications.length} notifikasi</p>
+                        <button onclick="clearAllNotifications()" class="text-xs text-red-500 hover:text-red-700 btn-press">
+                            <i class="fa-solid fa-trash mr-1"></i> Hapus Semua
+                        </button>
+                    </div>
+                    
+                    <div class="max-h-60 overflow-y-auto">
+                        ${notificationsHTML}
+                    </div>
+                    
+                    <div class="pt-3 border-t border-gray-200">
+                        <button onclick="addTestNotification()" class="w-full border border-adamon-dark text-adamon-dark py-2 rounded-lg font-medium hover:bg-adamon-dark/5 transition btn-press">
+                            <i class="fa-solid fa-plus mr-2"></i> Tambah Notifikasi Test
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+        
+        function getNotificationColorClass(type) {
+            switch(type) {
+                case 'success': return 'bg-green-100';
+                case 'warning': return 'bg-yellow-100';
+                case 'error': return 'bg-red-100';
+                default: return 'bg-blue-100';
+            }
+        }
+        
+        function getNotificationTextColorClass(type) {
+            switch(type) {
+                case 'success': return 'text-green-600';
+                case 'warning': return 'text-yellow-600';
+                case 'error': return 'text-red-600';
+                default: return 'text-blue-600';
+            }
+        }
+        
+        function getNotificationIcon(type) {
+            switch(type) {
+                case 'success': return 'fa-check-circle';
+                case 'warning': return 'fa-exclamation-triangle';
+                case 'error': return 'fa-times-circle';
+                default: return 'fa-info-circle';
+            }
+        }
+        
+        function formatNotificationTime(time) {
+            if (time === 'Baru saja') return time;
+            if (time === 'Kemarin') return time;
+            
+            // Format waktu menjadi lebih user-friendly
+            const now = new Date();
+            const notificationTime = new Date();
+            const [hours, minutes] = time.split(':');
+            notificationTime.setHours(hours, minutes);
+            
+            const diffHours = Math.floor((now - notificationTime) / (1000 * 60 * 60));
+            
+            if (diffHours < 1) return `${Math.floor((now - notificationTime) / (1000 * 60))} menit lalu`;
+            if (diffHours < 24) return `${diffHours} jam lalu`;
+            return time;
+        }
+        
+        function markAllAsRead() {
+            appState.notifications.forEach(notif => notif.read = true);
+            updateNotificationBadge();
+            closeCurrentModal();
+            showToast('Semua notifikasi ditandai sudah dibaca', 'success');
+        }
+        
+        function clearAllNotifications() {
+            appState.notifications = [];
+            updateNotificationBadge();
+            closeCurrentModal();
+            showToast('Semua notifikasi dihapus', 'success');
+        }
+        
+        function addTestNotification() {
+            const types = ['info', 'success', 'warning'];
+            const messages = [
+                'Pembayaran berhasil diproses',
+                'Skor kredit Anda meningkat 5 poin',
+                'Pengingat: Tagihan listrik jatuh tempo besok',
+                'Transaksi mencurigakan terdeteksi',
+                'Backup data berhasil dilakukan'
+            ];
+            
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            const newNotification = {
+                id: Date.now(),
+                type: randomType,
+                title: getNotificationTitle(randomType),
+                message: randomMessage,
+                time: 'Baru saja',
+                read: false
+            };
+            
+            appState.notifications.unshift(newNotification);
+            updateNotificationBadge();
+            
+            // Tampilkan ulang modal dengan notifikasi terbaru
+            showNotificationsModal();
+            
+            showToast('Notifikasi test ditambahkan', 'info');
+        }
+        
+        function getNotificationTitle(type) {
+            switch(type) {
+                case 'success': return 'Berhasil!';
+                case 'warning': return 'Peringatan';
+                case 'error': return 'Error';
+                default: return 'Informasi';
+            }
+        }
+        
+        function updateNotificationBadge() {
+            const unreadCount = appState.notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notification-badge');
+            if (badge) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.classList.toggle('hidden', unreadCount === 0);
+                
+                // Animasi untuk badge baru
+                if (unreadCount > 0) {
+                    badge.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        badge.classList.remove('animate-pulse');
+                    }, 2000);
+                }
+            }
+        }
+        // ============================================
+        // FUNGSI DETAIL PEMASUKAN DI RINGKASAN
+        // ============================================
+        
+        function showIncomeDetailModal() {
+            // Hitung total pemasukan dari transaksi
+            const incomeTransactions = appState.transactions.filter(t => t.type === 'income');
+            const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Hitung pemasukan bulan ini
+            const currentMonth = new Date().getMonth() + 1;
+            const currentYear = new Date().getFullYear();
+            const incomeThisMonth = incomeTransactions
+                .filter(t => {
+                    const transDate = new Date(t.date);
+                    return transDate.getMonth() + 1 === currentMonth && 
+                           transDate.getFullYear() === currentYear;
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            // Hitung persentase perubahan dari bulan lalu
+            const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+            const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+            const incomeLastMonth = incomeTransactions
+                .filter(t => {
+                    const transDate = new Date(t.date);
+                    return transDate.getMonth() + 1 === lastMonth && 
+                           transDate.getFullYear() === lastMonthYear;
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const incomeChange = lastMonthIncome > 0 ? 
+                ((incomeThisMonth - incomeLastMonth) / incomeLastMonth * 100).toFixed(1) : 0;
+            
+            // Hitung breakdown per kategori
+            const categoryBreakdown = {};
+            incomeTransactions.forEach(trans => {
+                if (!categoryBreakdown[trans.category]) {
+                    categoryBreakdown[trans.category] = 0;
+                }
+                categoryBreakdown[trans.category] += trans.amount;
+            });
+            
+            // Urutkan kategori berdasarkan jumlah
+            const sortedCategories = Object.entries(categoryBreakdown)
+                .sort((a, b) => b[1] - a[1]);
+            
+            showModal('Detail Pemasukan', `
+                <div class="space-y-4">
+                    <!-- Ringkasan Statistik -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-100 p-3 rounded-xl">
+                            <p class="text-xs text-green-700 mb-1">Total Pemasukan</p>
+                            <p class="text-lg font-bold text-green-800">Rp ${formatCurrency(totalIncome)}</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-100 p-3 rounded-xl">
+                            <p class="text-xs text-blue-700 mb-1">Bulan Ini</p>
+                            <p class="text-lg font-bold text-blue-800">Rp ${formatCurrency(incomeThisMonth)}</p>
+                            <p class="text-xs ${incomeChange >= 0 ? 'text-green-600' : 'text-red-600'} mt-1">
+                                ${incomeChange >= 0 ? '↗' : '↘'} ${Math.abs(incomeChange)}%
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Breakdown per Kategori -->
+                    <div>
+                        <p class="font-medium text-gray-800 mb-2">Pemasukan per Kategori:</p>
+                        <div class="space-y-2">
+                            ${sortedCategories.map(([category, amount]) => {
+                                const percentage = ((amount / totalIncome) * 100).toFixed(1);
+                                return `
+                                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                <i class="fa-solid fa-${getCategoryIcon(category)} text-green-600 text-xs"></i>
+                                            </div>
+                                            <span class="text-sm">${category}</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium">Rp ${formatCurrency(amount)}</p>
+                                            <p class="text-xs text-gray-500">${percentage}%</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- Transaksi Terbaru -->
+                    <div>
+                        <p class="font-medium text-gray-800 mb-2">Transaksi Pemasukan Terbaru:</p>
+                        <div class="space-y-2 max-h-40 overflow-y-auto">
+                            ${incomeTransactions.slice(0, 5).map(trans => `
+                                <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded-lg hover:bg-gray-50 transition">
+                                    <div>
+                                        <p class="text-sm font-medium">${trans.desc}</p>
+                                        <p class="text-xs text-gray-500">${formatDate(trans.date)} • ${trans.category}</p>
+                                    </div>
+                                    <span class="text-sm font-bold text-green-600">+Rp ${formatCurrency(trans.amount)}</span>
+                                </div>
+                            `).join('')}
+                            
+                            ${incomeTransactions.length === 0 ? `
+                                <div class="text-center py-4 text-gray-500">
+                                    <i class="fa-solid fa-coins text-2xl mb-2 opacity-50"></i>
+                                    <p class="text-sm">Belum ada transaksi pemasukan</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- Tips -->
+                    <div class="bg-gradient-to-r from-green-50 to-teal-50 p-3 rounded-lg border border-green-100">
+                        <p class="text-sm font-medium text-green-800 mb-1">💡 Tips Meningkatkan Pemasukan:</p>
+                        <p class="text-xs text-gray-600">• Diversifikasi sumber pendapatan<br>• Tingkatkan skill untuk mendapatkan gaji lebih tinggi<br>• Manfaatkan waktu luang untuk freelance</p>
+                    </div>
+                    
+                    <!-- Tombol Aksi -->
+                    <div class="flex gap-2">
+                        <button onclick="showAddIncomeForm()" class="flex-1 bg-green-500 text-white py-2 rounded-lg font-medium hover:bg-green-600 transition btn-press">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Pemasukan
+                        </button>
+                        <button onclick="exportIncomeReport()" class="flex-1 border border-green-500 text-green-500 py-2 rounded-lg font-medium hover:bg-green-50 transition btn-press">
+                            <i class="fa-solid fa-download mr-1"></i> Ekspor
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+        
+            // ============================================
+            // FUNGSI DETAIL PENGELUARAN DI RINGKASAN
+            // ============================================
+            
+            function showExpenseDetailModal() {
+                // Hitung total pengeluaran dari transaksi
+                const expenseTransactions = appState.transactions.filter(t => t.type === 'expense');
+                const totalExpense = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+                
+                // Hitung pengeluaran bulan ini
+                const currentMonth = new Date().getMonth() + 1;
+                const currentYear = new Date().getFullYear();
+                const expenseThisMonth = expenseTransactions
+                    .filter(t => {
+                        const transDate = new Date(t.date);
+                        return transDate.getMonth() + 1 === currentMonth && 
+                               transDate.getFullYear() === currentYear;
+                    })
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                // Hitung persentase perubahan dari bulan lalu
+                const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+                const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+                const expenseLastMonth = expenseTransactions
+                    .filter(t => {
+                        const transDate = new Date(t.date);
+                        return transDate.getMonth() + 1 === lastMonth && 
+                               transDate.getFullYear() === lastMonthYear;
+                    })
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const expenseChange = expenseLastMonth > 0 ? 
+                    ((expenseThisMonth - expenseLastMonth) / expenseLastMonth * 100).toFixed(1) : 0;
+                
+                // Hitung breakdown per kategori
+                const categoryBreakdown = {};
+                expenseTransactions.forEach(trans => {
+                    if (!categoryBreakdown[trans.category]) {
+                        categoryBreakdown[trans.category] = 0;
+                    }
+                    categoryBreakdown[trans.category] += trans.amount;
+                });
+                
+                // Urutkan kategori berdasarkan jumlah
+                const sortedCategories = Object.entries(categoryBreakdown)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                // Hitung rata-rata pengeluaran harian
+                const today = new Date();
+                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                const daysPassed = Math.floor((today - firstDayOfMonth) / (1000 * 60 * 60 * 24)) + 1;
+                const dailyAverage = daysPassed > 0 ? expenseThisMonth / daysPassed : 0;
+                
+                showModal('Detail Pengeluaran', `
+                    <div class="space-y-4">
+                        <!-- Ringkasan Statistik -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gradient-to-r from-red-50 to-pink-100 p-3 rounded-xl">
+                                <p class="text-xs text-red-700 mb-1">Total Pengeluaran</p>
+                                <p class="text-lg font-bold text-red-800">Rp ${formatCurrency(totalExpense)}</p>
+                            </div>
+                            <div class="bg-gradient-to-r from-orange-50 to-amber-100 p-3 rounded-xl">
+                                <p class="text-xs text-orange-700 mb-1">Bulan Ini</p>
+                                <p class="text-lg font-bold text-orange-800">Rp ${formatCurrency(expenseThisMonth)}</p>
+                                <p class="text-xs ${expenseChange <= 0 ? 'text-green-600' : 'text-red-600'} mt-1">
+                                    ${expenseChange <= 0 ? '↘' : '↗'} ${Math.abs(expenseChange)}%
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistik Tambahan -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-xl">
+                                <p class="text-xs text-gray-700 mb-1">Rata-rata Harian</p>
+                                <p class="text-sm font-bold text-gray-800">Rp ${formatCurrency(Math.round(dailyAverage))}</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-xl">
+                                <p class="text-xs text-gray-700 mb-1">Transaksi</p>
+                                <p class="text-sm font-bold text-gray-800">${expenseTransactions.length}x</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Breakdown per Kategori -->
+                        <div>
+                            <p class="font-medium text-gray-800 mb-2">Pengeluaran per Kategori:</p>
+                            <div class="space-y-2">
+                                ${sortedCategories.map(([category, amount]) => {
+                                    const percentage = ((amount / totalExpense) * 100).toFixed(1);
+                                    return `
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                                    <i class="fa-solid fa-${getCategoryIcon(category)} text-red-600 text-xs"></i>
+                                                </div>
+                                                <span class="text-sm">${category}</span>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm font-medium">Rp ${formatCurrency(amount)}</p>
+                                                <p class="text-xs text-gray-500">${percentage}%</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
+                        <!-- Transaksi Terbaru -->
+                        <div>
+                            <p class="font-medium text-gray-800 mb-2">Transaksi Pengeluaran Terbaru:</p>
+                            <div class="space-y-2 max-h-40 overflow-y-auto">
+                                ${expenseTransactions.slice(0, 5).map(trans => `
+                                    <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded-lg hover:bg-gray-50 transition">
+                                        <div>
+                                            <p class="text-sm font-medium">${trans.desc}</p>
+                                            <p class="text-xs text-gray-500">${formatDate(trans.date)} • ${trans.category}</p>
+                                        </div>
+                                        <span class="text-sm font-bold text-red-600">-Rp ${formatCurrency(trans.amount)}</span>
+                                    </div>
+                                `).join('')}
+                                
+                                ${expenseTransactions.length === 0 ? `
+                                    <div class="text-center py-4 text-gray-500">
+                                        <i class="fa-solid fa-shopping-cart text-2xl mb-2 opacity-50"></i>
+                                        <p class="text-sm">Belum ada transaksi pengeluaran</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Tips Penghematan -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-100">
+                            <p class="text-sm font-medium text-blue-800 mb-1">💡 Tips Menghemat Pengeluaran:</p>
+                            <p class="text-xs text-gray-600">• Catat semua pengeluaran kecil<br>• Bandingkan harga sebelum beli<br>• Buat anggaran dan patuhi<br>• Hindari pembelian impulsif</p>
+                        </div>
+                        
+                        <!-- Chart Mini (Visualisasi) -->
+                        ${sortedCategories.length > 0 ? `
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm font-medium text-gray-800 mb-2">Distribusi Pengeluaran:</p>
+                                <div class="flex items-end h-8 gap-1">
+                                    ${sortedCategories.slice(0, 5).map(([category, amount]) => {
+                                        const percentage = ((amount / totalExpense) * 100);
+                                        const height = Math.max(10, percentage * 0.8);
+                                        return `
+                                            <div class="flex-1 flex flex-col items-center">
+                                                <div class="w-full bg-red-400 rounded-t" style="height: ${height}px"></div>
+                                                <p class="text-[10px] text-gray-500 mt-1 truncate w-full text-center">${category.substring(0, 3)}</p>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Tombol Aksi -->
+                        <div class="flex gap-2">
+                            <button onclick="showAddExpenseForm()" class="flex-1 bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-red-600 transition btn-press">
+                                <i class="fa-solid fa-plus mr-1"></i> Tambah Pengeluaran
+                            </button>
+                            <button onclick="exportExpenseReport()" class="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium hover:bg-red-50 transition btn-press">
+                                <i class="fa-solid fa-download mr-1"></i> Ekspor
+                            </button>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            // ============================================
+            // FUNGSI BANTUAN
+            // ============================================
+            
+            function getCategoryIcon(category) {
+                const icons = {
+                    'Gaji': 'money-bill-wave',
+                    'Bonus': 'gift',
+                    'Investasi': 'chart-line',
+                    'Freelance': 'laptop-code',
+                    'Makanan': 'utensils',
+                    'Transportasi': 'car',
+                    'Belanja': 'shopping-bag',
+                    'Hiburan': 'film',
+                    'Kesehatan': 'heart-pulse',
+                    'Pendidikan': 'graduation-cap',
+                    'Tagihan': 'file-invoice',
+                    'Lainnya': 'ellipsis'
+                };
+                return icons[category] || 'circle';
+            }
+            
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+            
+            function exportIncomeReport() {
+                showToast('Mengekspor laporan pemasukan...', 'info');
+                setTimeout(() => {
+                    showToast('Laporan pemasukan berhasil diekspor ke PDF!', 'success');
+                }, 1500);
+            }
+            
+            function exportExpenseReport() {
+                showToast('Mengekspor laporan pengeluaran...', 'info');
+                setTimeout(() => {
+                    showToast('Laporan pengeluaran berhasil diekspor ke PDF!', 'success');
+                }, 1500);
+            }
         // ============================================
         // FUNGSI BANTU LAINNYA (DISEDERHANAKAN)
         // ============================================
@@ -2535,3 +3037,4 @@
     </script>
 </body>
 </html>
+

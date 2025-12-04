@@ -1939,8 +1939,18 @@
                 showToast('Laporan berhasil diunduh!', 'success');
             }, 1500);
         }
-
         function showCategoryDetail(category) {
+        
+            // Tentukan tips berdasarkan kategori
+            let tipsText = "";
+            if (category === "Makan") {
+                tipsText = "Coba kurangi frekuensi makan di luar, masak sendiri bisa hemat 40%";
+            } else if (category === "Transportasi") {
+                tipsText = "Gunakan transportasi umum untuk perjalanan rutin, bisa mengurangi biaya hingga 30% dibanding kendaraan pribadi.";
+            } else {
+                tipsText = "Kelola pengeluaran dengan bijak agar anggaran tetap aman.";
+            }
+        
             showModal(`Detail: ${category}`, `
                 <div class="space-y-4">
                     <div class="flex justify-between">
@@ -1955,18 +1965,19 @@
                         <span class="text-gray-600">Sisa</span>
                         <span class="font-bold text-green-600">Rp 900.000</span>
                     </div>
-                    
+        
                     <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                         <div class="h-full bg-red-500" style="width: 70%"></div>
                     </div>
-                    
+        
                     <div class="bg-blue-50 p-3 rounded-lg">
                         <p class="text-sm font-medium mb-1">💡 Tips untuk ${category}:</p>
-                        <p class="text-xs text-gray-600">Coba kurangi frekuensi makan di luar, masak sendiri bisa hemat 40%</p>
+                        <p class="text-xs text-gray-600">${tipsText}</p>
                     </div>
                 </div>
             `);
         }
+
 
         function refreshCreditScore() {
             showToast('Memperbarui skor kredit...', 'info');
@@ -2991,6 +3002,7 @@
     </script>
 </body>
 </html>
+
 
 
 

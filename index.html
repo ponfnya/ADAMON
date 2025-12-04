@@ -824,7 +824,7 @@
         function formatCurrency(amount) {
             return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
-  // ============================================
+          // ============================================
         // TAB NAVIGATION
         // ============================================
 
@@ -872,6 +872,53 @@
 
 
         // ============================================
+        // MODAL SYSTEM
+        // ============================================
+
+        function showModal(title, content, options = {}) {
+            const modalId = 'modal-' + Date.now();
+            const modalHTML = `
+                <div id="${modalId}" class="modal-overlay">
+                    <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-xl max-h-[80vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">${title}</h3>
+                            <button onclick="closeCurrentModal()" class="text-gray-400 hover:text-gray-600 btn-press">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div class="mb-6">${content}</div>
+                        <div class="flex gap-3">
+                            ${options.confirm ? `
+                                <button onclick="${options.confirmAction || 'closeCurrentModal()'}" 
+                                        class="flex-1 bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
+                                    ${options.confirmText || 'Ya'}
+                                </button>
+                                <button onclick="closeCurrentModal()" 
+                                        class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
+                                    ${options.cancelText || 'Batal'}
+                                </button>
+                            ` : `
+                                <button onclick="closeCurrentModal()" 
+                                        class="w-full bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
+                                    Tutup
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modal-container').innerHTML = modalHTML;
+        }
+
+        function closeCurrentModal() {
+            const modals = document.querySelectorAll('.modal-overlay');
+            if (modals.length > 0) {
+                const lastModal = modals[modals.length - 1];
+                lastModal.remove();
+            }
+        }
+// ============================================
         // MODAL SYSTEM
         // ============================================
 
@@ -1319,49 +1366,6 @@
         }
 
         // ============================================
-        // FUNGSI LAINNYA YANG SUDAH ADA (DIPERBAIKI)
-        // ============================================
-
-        function showQuickAddMenu() {
-            showModal('Tambah Cepat', `
-                <div class="space-y-3">
-                    <button onclick="showAddIncomeForm()" class="w-full bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-green-100">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-money-bill-wave text-green-600"></i>
-                            <span>Tambah Pemasukan</span>
-                        </div>
-                        <i class="fa-solid fa-plus text-green-600"></i>
-                    </button>
-                    <button onclick="showAddExpenseForm()" class="w-full bg-red-50 border border-red-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-red-100">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-utensils text-red-600"></i>
-                            <span>Tambah Pengeluaran</span>
-                        </div>
-                        <i class="fa-solid fa-plus text-red-600"></i>
-                    </button>
-                    <button onclick="showTransferForm()" class="w-full bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-center justify-between btn-press hover:bg-blue-100">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-arrow-right-arrow-left text-blue-600"></i>
-                            <span>Catat Transfer</span>
-                        </div>
-                        <i class="fa-solid fa-plus text-blue-600"></i>
-                    </button>
-                </div>
-            `);
-        }
-
-        function showTransferForm() {
-            showModal('Catat Transfer', `
-                <div class="space-y-4">
-                    <p class="text-gray-600 text-sm">Fitur transfer antar rekening akan segera hadir di update berikutnya!</p>
-                    <button onclick="closeCurrentModal()" class="w-full bg-adamon-dark text-white py-3 rounded-xl font-medium hover:bg-teal-900 transition btn-press">
-                        OK, Mengerti
-                    </button>
-                </div>
-            `);
-        }
-
-        // ============================================
         // FUNGSI PREMIUM YANG SUDAH DIPERBAIKI
         // ============================================
 
@@ -1760,174 +1764,7 @@
                 </div>
             `);
         }
-        
-            // ============================================
-            // FUNGSI DETAIL PENGELUARAN DI RINGKASAN
-            // ============================================
-            
-            function showExpenseDetailModal() {
-                // Hitung total pengeluaran dari transaksi
-                const expenseTransactions = appState.transactions.filter(t => t.type === 'expense');
-                const totalExpense = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
-                
-                // Hitung pengeluaran bulan ini
-                const currentMonth = new Date().getMonth() + 1;
-                const currentYear = new Date().getFullYear();
-                const expenseThisMonth = expenseTransactions
-                    .filter(t => {
-                        const transDate = new Date(t.date);
-                        return transDate.getMonth() + 1 === currentMonth && 
-                               transDate.getFullYear() === currentYear;
-                    })
-                    .reduce((sum, t) => sum + t.amount, 0);
-                
-                // Hitung persentase perubahan dari bulan lalu
-                const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-                const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
-                const expenseLastMonth = expenseTransactions
-                    .filter(t => {
-                        const transDate = new Date(t.date);
-                        return transDate.getMonth() + 1 === lastMonth && 
-                               transDate.getFullYear() === lastMonthYear;
-                    })
-                    .reduce((sum, t) => sum + t.amount, 0);
-                
-                const expenseChange = expenseLastMonth > 0 ? 
-                    ((expenseThisMonth - expenseLastMonth) / expenseLastMonth * 100).toFixed(1) : 0;
-                
-                // Hitung breakdown per kategori
-                const categoryBreakdown = {};
-                expenseTransactions.forEach(trans => {
-                    if (!categoryBreakdown[trans.category]) {
-                        categoryBreakdown[trans.category] = 0;
-                    }
-                    categoryBreakdown[trans.category] += trans.amount;
-                });
-                
-                // Urutkan kategori berdasarkan jumlah
-                const sortedCategories = Object.entries(categoryBreakdown)
-                    .sort((a, b) => b[1] - a[1]);
-                
-                // Hitung rata-rata pengeluaran harian
-                const today = new Date();
-                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                const daysPassed = Math.floor((today - firstDayOfMonth) / (1000 * 60 * 60 * 24)) + 1;
-                const dailyAverage = daysPassed > 0 ? expenseThisMonth / daysPassed : 0;
-                
-                showModal('Detail Pengeluaran', `
-                    <div class="space-y-4">
-                        <!-- Ringkasan Statistik -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-gradient-to-r from-red-50 to-pink-100 p-3 rounded-xl">
-                                <p class="text-xs text-red-700 mb-1">Total Pengeluaran</p>
-                                <p class="text-lg font-bold text-red-800">Rp ${formatCurrency(totalExpense)}</p>
-                            </div>
-                            <div class="bg-gradient-to-r from-orange-50 to-amber-100 p-3 rounded-xl">
-                                <p class="text-xs text-orange-700 mb-1">Bulan Ini</p>
-                                <p class="text-lg font-bold text-orange-800">Rp ${formatCurrency(expenseThisMonth)}</p>
-                                <p class="text-xs ${expenseChange <= 0 ? 'text-green-600' : 'text-red-600'} mt-1">
-                                    ${expenseChange <= 0 ? '↘' : '↗'} ${Math.abs(expenseChange)}%
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <!-- Statistik Tambahan -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-xl">
-                                <p class="text-xs text-gray-700 mb-1">Rata-rata Harian</p>
-                                <p class="text-sm font-bold text-gray-800">Rp ${formatCurrency(Math.round(dailyAverage))}</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-xl">
-                                <p class="text-xs text-gray-700 mb-1">Transaksi</p>
-                                <p class="text-sm font-bold text-gray-800">${expenseTransactions.length}x</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Breakdown per Kategori -->
-                        <div>
-                            <p class="font-medium text-gray-800 mb-2">Pengeluaran per Kategori:</p>
-                            <div class="space-y-2">
-                                ${sortedCategories.map(([category, amount]) => {
-                                    const percentage = ((amount / totalExpense) * 100).toFixed(1);
-                                    return `
-                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                                    <i class="fa-solid fa-${getCategoryIcon(category)} text-red-600 text-xs"></i>
-                                                </div>
-                                                <span class="text-sm">${category}</span>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-sm font-medium">Rp ${formatCurrency(amount)}</p>
-                                                <p class="text-xs text-gray-500">${percentage}%</p>
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        </div>
-                        
-                        <!-- Transaksi Terbaru -->
-                        <div>
-                            <p class="font-medium text-gray-800 mb-2">Transaksi Pengeluaran Terbaru:</p>
-                            <div class="space-y-2 max-h-40 overflow-y-auto">
-                                ${expenseTransactions.slice(0, 5).map(trans => `
-                                    <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded-lg hover:bg-gray-50 transition">
-                                        <div>
-                                            <p class="text-sm font-medium">${trans.desc}</p>
-                                            <p class="text-xs text-gray-500">${formatDate(trans.date)} • ${trans.category}</p>
-                                        </div>
-                                        <span class="text-sm font-bold text-red-600">-Rp ${formatCurrency(trans.amount)}</span>
-                                    </div>
-                                `).join('')}
-                                
-                                ${expenseTransactions.length === 0 ? `
-                                    <div class="text-center py-4 text-gray-500">
-                                        <i class="fa-solid fa-shopping-cart text-2xl mb-2 opacity-50"></i>
-                                        <p class="text-sm">Belum ada transaksi pengeluaran</p>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                        
-                        <!-- Tips Penghematan -->
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-100">
-                            <p class="text-sm font-medium text-blue-800 mb-1">💡 Tips Menghemat Pengeluaran:</p>
-                            <p class="text-xs text-gray-600">• Catat semua pengeluaran kecil<br>• Bandingkan harga sebelum beli<br>• Buat anggaran dan patuhi<br>• Hindari pembelian impulsif</p>
-                        </div>
-                        
-                        <!-- Chart Mini (Visualisasi) -->
-                        ${sortedCategories.length > 0 ? `
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-sm font-medium text-gray-800 mb-2">Distribusi Pengeluaran:</p>
-                                <div class="flex items-end h-8 gap-1">
-                                    ${sortedCategories.slice(0, 5).map(([category, amount]) => {
-                                        const percentage = ((amount / totalExpense) * 100);
-                                        const height = Math.max(10, percentage * 0.8);
-                                        return `
-                                            <div class="flex-1 flex flex-col items-center">
-                                                <div class="w-full bg-red-400 rounded-t" style="height: ${height}px"></div>
-                                                <p class="text-[10px] text-gray-500 mt-1 truncate w-full text-center">${category.substring(0, 3)}</p>
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
-                        
-                        <!-- Tombol Aksi -->
-                        <div class="flex gap-2">
-                            <button onclick="showAddExpenseForm()" class="flex-1 bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-red-600 transition btn-press">
-                                <i class="fa-solid fa-plus mr-1"></i> Tambah Pengeluaran
-                            </button>
-                            <button onclick="exportExpenseReport()" class="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium hover:bg-red-50 transition btn-press">
-                                <i class="fa-solid fa-download mr-1"></i> Ekspor
-                            </button>
-                        </div>
-                    </div>
-                `);
-            }
-            
+ 
             // ============================================
             // FUNGSI BANTUAN
             // ============================================
@@ -3190,4 +3027,5 @@
     </script>
 </body>
 </html>
+
 

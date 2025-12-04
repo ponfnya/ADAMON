@@ -1191,91 +1191,6 @@
             `);
         }
 
-        // ============================================
-        // FUNGSI DETAIL PEMASUKAN & PENGELUARAN
-        // ============================================
-
-        function showIncomeDetailModal() {
-            const incomeTransactions = appState.transactions.filter(t => t.type === 'income');
-            const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-            
-            showModal('Detail Pemasukan', `
-                <div class="space-y-4">
-                    <!-- Total Pemasukan -->
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-100 p-4 rounded-xl">
-                        <p class="text-xs text-green-700 mb-1">Total Pemasukan</p>
-                        <p class="text-2xl font-bold text-green-800">Rp ${formatCurrency(totalIncome)}</p>
-                    </div>
-                    
-                    <!-- Daftar Transaksi -->
-                    <div>
-                        <p class="font-medium text-gray-800 mb-2">Transaksi Pemasukan:</p>
-                        <div class="space-y-2 max-h-48 overflow-y-auto">
-                            ${incomeTransactions.length > 0 ? incomeTransactions.map(trans => `
-                                <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg">
-                                    <div>
-                                        <p class="text-sm font-medium">${trans.desc}</p>
-                                        <p class="text-xs text-gray-500">${trans.date} • ${trans.category}</p>
-                                    </div>
-                                    <span class="text-sm font-bold text-green-600">+Rp ${formatCurrency(trans.amount)}</span>
-                                </div>
-                            `).join('') : `
-                                <div class="text-center py-4 text-gray-500">
-                                    <i class="fa-solid fa-coins text-2xl mb-2 opacity-50"></i>
-                                    <p class="text-sm">Belum ada transaksi pemasukan</p>
-                                </div>
-                            `}
-                        </div>
-                    </div>
-                    
-                    <!-- Tombol Tambah -->
-                    <button onclick="showAddIncomeForm()" class="w-full bg-green-500 text-white py-3 rounded-xl font-medium hover:bg-green-600 transition btn-press">
-                        <i class="fa-solid fa-plus mr-2"></i> Tambah Pemasukan
-                    </button>
-                </div>
-            `);
-        }
-
-        function showExpenseDetailModal() {
-            const expenseTransactions = appState.transactions.filter(t => t.type === 'expense');
-            const totalExpense = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
-            
-            showModal('Detail Pengeluaran', `
-                <div class="space-y-4">
-                    <!-- Total Pengeluaran -->
-                    <div class="bg-gradient-to-r from-red-50 to-pink-100 p-4 rounded-xl">
-                        <p class="text-xs text-red-700 mb-1">Total Pengeluaran</p>
-                        <p class="text-2xl font-bold text-red-800">Rp ${formatCurrency(totalExpense)}</p>
-                    </div>
-                    
-                    <!-- Daftar Transaksi -->
-                    <div>
-                        <p class="font-medium text-gray-800 mb-2">Transaksi Pengeluaran:</p>
-                        <div class="space-y-2 max-h-48 overflow-y-auto">
-                            ${expenseTransactions.length > 0 ? expenseTransactions.map(trans => `
-                                <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg">
-                                    <div>
-                                        <p class="text-sm font-medium">${trans.desc}</p>
-                                        <p class="text-xs text-gray-500">${trans.date} • ${trans.category}</p>
-                                    </div>
-                                    <span class="text-sm font-bold text-red-600">-Rp ${formatCurrency(trans.amount)}</span>
-                                </div>
-                            `).join('') : `
-                                <div class="text-center py-4 text-gray-500">
-                                    <i class="fa-solid fa-shopping-cart text-2xl mb-2 opacity-50"></i>
-                                    <p class="text-sm">Belum ada transaksi pengeluaran</p>
-                                </div>
-                            `}
-                        </div>
-                    </div>
-                    
-                    <!-- Tombol Tambah -->
-                    <button onclick="showAddExpenseForm()" class="w-full bg-red-500 text-white py-3 rounded-xl font-medium hover:bg-red-600 transition btn-press">
-                        <i class="fa-solid fa-plus mr-2"></i> Tambah Pengeluaran
-                    </button>
-                </div>
-            `);
-        }
 
         // ============================================
         // FUNGSI NOTIFIKASI
@@ -3027,6 +2942,7 @@
     </script>
 </body>
 </html>
+
 
 
 

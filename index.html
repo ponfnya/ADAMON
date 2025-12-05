@@ -1890,30 +1890,6 @@
         // FUNGSI BANTU LAINNYA (DISEDERHANAKAN)
         // ============================================
 
-        function showTransactionFilters() {
-            showModal('Filter Transaksi', `
-                <div class="space-y-3">
-                    <button onclick="applyFilter('all')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Semua Transaksi
-                    </button>
-                    <button onclick="applyFilter('income')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Hanya Pemasukan
-                    </button>
-                    <button onclick="applyFilter('expense')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Hanya Pengeluaran
-                    </button>
-                    <button onclick="applyFilter('today')" class="w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-gray-50 btn-press">
-                        Hari Ini Saja
-                    </button>
-                </div>
-            `);
-        }
-
-        function applyFilter(type) {
-            showToast(`Filter "${type}" diterapkan`, 'info');
-            closeCurrentModal();
-        }
-
         function showTodayTransactions() {
             const today = new Date().toISOString().split('T')[0];
             const todayTrans = appState.transactions.filter(t => t.date === today);
@@ -3036,6 +3012,7 @@
     </script>
 </body>
 </html>
+
 
 
 

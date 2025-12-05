@@ -183,6 +183,18 @@
                     </button>
                 </div>
 
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <button onclick="showAddIncomeFormWithReceipt()" class="bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 p-4 rounded-xl flex flex-col items-center justify-center btn-press hover:from-green-200 hover:to-emerald-200 relative">
+                        <i class="fa-solid fa-money-bill-wave text-green-600 text-xl mb-1"></i>
+                        <i class="fa-solid fa-camera absolute top-2 right-2 text-green-500 text-xs"></i>
+                        <span class="text-xs font-medium text-green-700">Pemasukan + Struk</span>
+                    </button>
+                    <button onclick="showAddExpenseFormWithReceipt()" class="bg-gradient-to-r from-red-100 to-rose-100 border-2 border-red-300 p-4 rounded-xl flex flex-col items-center justify-center btn-press hover:from-red-200 hover:to-rose-200 relative">
+                        <i class="fa-solid fa-utensils text-red-600 text-xl mb-1"></i>
+                        <i class="fa-solid fa-camera absolute top-2 right-2 text-red-500 text-xs"></i>
+                        <span class="text-xs font-medium text-red-700">Pengeluaran + Struk</span>
+                    </button>
+                </div>
                 <!-- Recent Transactions -->
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-semibold text-gray-700">Transaksi Terbaru</h3>
@@ -1548,6 +1560,532 @@
                         badge.classList.remove('animate-pulse');
                     }, 2000);
                 }
+            }
+        }
+        // ============================================
+        // FUNGSI TAMBAH TRANSAKSI DENGAN STRUK
+        // ============================================
+        
+        function showAddIncomeFormWithReceipt() {
+            showModal('Tambah Pemasukan + Struk', `
+                <div class="space-y-4">
+                    <!-- Preview Struk -->
+                    <div id="receipt-preview-income" class="hidden">
+                        <div class="bg-gray-50 rounded-xl p-4 border-2 border-dashed border-gray-300 relative">
+                            <img id="receipt-image-income" class="w-full h-48 object-contain rounded-lg mb-2">
+                            <button onclick="removeReceipt('income')" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full btn-press">
+                                <i class="fa-solid fa-times text-xs"></i>
+                            </button>
+                            <p id="receipt-filename-income" class="text-xs text-center text-gray-500 truncate mt-2"></p>
+                        </div>
+                    </div>
+        
+                    <!-- Tombol Upload -->
+                    <div id="upload-area-income" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition cursor-pointer">
+                        <input type="file" id="receipt-input-income" accept="image/*" class="hidden" onchange="previewReceipt(this, 'income')">
+                        <label for="receipt-input-income" class="cursor-pointer">
+                            <i class="fa-solid fa-camera text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-600">Unggah Foto Struk</p>
+                            <p class="text-xs text-gray-400 mt-1">Klik untuk mengambil foto atau pilih dari galeri</p>
+                            <p class="text-xs text-gray-400">Format: JPG, PNG • Maks: 5MB</p>
+                        </label>
+                    </div>
+        
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                        <input type="text" id="income-desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="Contoh: Gaji bulanan">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                        <input type="number" id="income-amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="0">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                        <select id="income-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent">
+                            <option value="Gaji">Gaji</option>
+                            <option value="Bonus">Bonus</option>
+                            <option value="Investasi">Investasi</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                        <input type="date" id="income-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
+                    </div>
+        
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="save-as-template" class="rounded text-adamon-dark focus:ring-adamon-dark">
+                        <label for="save-as-template" class="text-sm text-gray-600">Simpan sebagai template untuk transaksi serupa</label>
+                    </div>
+                </div>
+            `, {
+                confirm: true,
+                confirmText: 'Simpan dengan Struk',
+                cancelText: 'Batal',
+                confirmAction: 'saveIncomeTransactionWithReceipt()'
+            });
+        }
+        
+        function showAddExpenseFormWithReceipt() {
+            showModal('Tambah Pengeluaran + Struk', `
+                <div class="space-y-4">
+                    <!-- Preview Struk -->
+                    <div id="receipt-preview-expense" class="hidden">
+                        <div class="bg-gray-50 rounded-xl p-4 border-2 border-dashed border-gray-300 relative">
+                            <img id="receipt-image-expense" class="w-full h-48 object-contain rounded-lg mb-2">
+                            <button onclick="removeReceipt('expense')" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full btn-press">
+                                <i class="fa-solid fa-times text-xs"></i>
+                            </button>
+                            <p id="receipt-filename-expense" class="text-xs text-center text-gray-500 truncate mt-2"></p>
+                        </div>
+                    </div>
+        
+                    <!-- Tombol Upload -->
+                    <div id="upload-area-expense" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition cursor-pointer">
+                        <input type="file" id="receipt-input-expense" accept="image/*" class="hidden" onchange="previewReceipt(this, 'expense')">
+                        <label for="receipt-input-expense" class="cursor-pointer">
+                            <i class="fa-solid fa-camera text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-600">Unggah Foto Struk</p>
+                            <p class="text-xs text-gray-400 mt-1">Klik untuk mengambil foto atau pilih dari galeri</p>
+                            <p class="text-xs text-gray-400">Format: JPG, PNG • Maks: 5MB</p>
+                        </label>
+                    </div>
+        
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                        <input type="text" id="expense-desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="Contoh: Belanja bulanan">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                        <input type="number" id="expense-amount" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" placeholder="0">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                        <select id="expense-category" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent">
+                            <option value="Makanan">Makanan & Minuman</option>
+                            <option value="Transportasi">Transportasi</option>
+                            <option value="Belanja">Belanja</option>
+                            <option value="Tagihan">Tagihan & Utilitas</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                        <input type="date" id="expense-date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-adamon-dark focus:border-transparent" value="${new Date().toISOString().split('T')[0]}">
+                    </div>
+        
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="save-as-template-expense" class="rounded text-adamon-dark focus:ring-adamon-dark">
+                        <label for="save-as-template-expense" class="text-sm text-gray-600">Simpan sebagai template untuk transaksi serupa</label>
+                    </div>
+                </div>
+            `, {
+                confirm: true,
+                confirmText: 'Simpan dengan Struk',
+                cancelText: 'Batal',
+                confirmAction: 'saveExpenseTransactionWithReceipt()'
+            });
+        }
+        
+        // ============================================
+        // FUNGSI PREVIEW DAN HANDLING STRUK
+        // ============================================
+        
+        let currentReceipts = {
+            income: null,
+            expense: null
+        };
+        
+        function previewReceipt(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+        
+            // Validasi ukuran file (maks 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Ukuran file terlalu besar. Maksimal 5MB', 'error');
+                return;
+            }
+        
+            // Validasi tipe file
+            if (!file.type.match('image.*')) {
+                showToast('Format file tidak didukung. Gunakan JPG, PNG', 'error');
+                return;
+            }
+        
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentReceipts[type] = {
+                    dataUrl: e.target.result,
+                    filename: file.name,
+                    fileSize: (file.size / 1024).toFixed(2) + ' KB'
+                };
+        
+                // Update UI
+                const previewDiv = document.getElementById(`receipt-preview-${type}`);
+                const uploadArea = document.getElementById(`upload-area-${type}`);
+                const imageElement = document.getElementById(`receipt-image-${type}`);
+                const filenameElement = document.getElementById(`receipt-filename-${type}`);
+        
+                if (previewDiv && uploadArea && imageElement && filenameElement) {
+                    previewDiv.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                    imageElement.src = e.target.result;
+                    filenameElement.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function removeReceipt(type) {
+            currentReceipts[type] = null;
+            
+            const previewDiv = document.getElementById(`receipt-preview-${type}`);
+            const uploadArea = document.getElementById(`upload-area-${type}`);
+            const inputElement = document.getElementById(`receipt-input-${type}`);
+            
+            if (previewDiv && uploadArea && inputElement) {
+                previewDiv.classList.add('hidden');
+                uploadArea.classList.remove('hidden');
+                inputElement.value = '';
+            }
+        }
+        
+        // ============================================
+        // FUNGSI SIMPAN TRANSAKSI DENGAN STRUK
+        // ============================================
+        
+        function saveIncomeTransactionWithReceipt() {
+            const desc = document.getElementById('income-desc').value.trim();
+            const amount = parseInt(document.getElementById('income-amount').value) || 0;
+            const category = document.getElementById('income-category').value;
+            const date = document.getElementById('income-date').value;
+            
+            if (!desc) {
+                showToast('Deskripsi tidak boleh kosong', 'error');
+                return;
+            }
+            
+            if (amount <= 0) {
+                showToast('Jumlah harus lebih dari 0', 'error');
+                return;
+            }
+            
+            const newTrans = {
+                id: Date.now(),
+                type: "income",
+                desc: desc,
+                category: category,
+                amount: amount,
+                date: date,
+                receipt: currentReceipts.income,
+                hasReceipt: true
+            };
+            
+            appState.transactions.unshift(newTrans);
+            updateTransactionList();
+            
+            // Update financial data
+            appState.financialData.income += amount;
+            appState.user.balance += amount;
+            
+            updateBalance();
+            
+            // Reset receipt
+            currentReceipts.income = null;
+            
+            closeCurrentModal();
+            showToast('Pemasukan dengan struk berhasil ditambahkan!', 'success');
+        }
+        
+        function saveExpenseTransactionWithReceipt() {
+            const desc = document.getElementById('expense-desc').value.trim();
+            const amount = parseInt(document.getElementById('expense-amount').value) || 0;
+            const category = document.getElementById('expense-category').value;
+            const date = document.getElementById('expense-date').value;
+            
+            if (!desc) {
+                showToast('Deskripsi tidak boleh kosong', 'error');
+                return;
+            }
+            
+            if (amount <= 0) {
+                showToast('Jumlah harus lebih dari 0', 'error');
+                return;
+            }
+            
+            const newTrans = {
+                id: Date.now(),
+                type: "expense",
+                desc: desc,
+                category: category,
+                amount: amount,
+                date: date,
+                receipt: currentReceipts.expense,
+                hasReceipt: true
+            };
+            
+            appState.transactions.unshift(newTrans);
+            updateTransactionList();
+            
+            // Update financial data
+            appState.financialData.expense += amount;
+            appState.user.balance -= amount;
+            
+            updateBalance();
+            
+            // Reset receipt
+            currentReceipts.expense = null;
+            
+            closeCurrentModal();
+            showToast('Pengeluaran dengan struk berhasil dicatat!', 'success');
+        }
+        
+        // ============================================
+        // UPDATE QUICK ADD MENU DENGAN OPTION STRUK
+        // ============================================
+        
+        function showQuickAddMenu() {
+            showModal('Tambah Cepat', `
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="showAddIncomeForm()" class="bg-green-50 border border-green-200 p-4 rounded-xl flex flex-col items-center justify-center btn-press hover:bg-green-100">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 text-xl mb-2"></i>
+                            <span class="text-xs font-medium text-green-700 text-center">Tambah<br>Pemasukan</span>
+                        </button>
+                        
+                        <button onclick="showAddIncomeFormWithReceipt()" class="bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 p-4 rounded-xl flex flex-col items-center justify-center btn-press hover:from-green-200 hover:to-emerald-200 relative">
+                            <i class="fa-solid fa-money-bill-wave text-green-600 text-xl mb-2"></i>
+                            <i class="fa-solid fa-camera absolute top-2 right-2 text-green-500 text-xs"></i>
+                            <span class="text-xs font-medium text-green-700 text-center">Pemasukan<br>+ Struk</span>
+                        </button>
+                        
+                        <button onclick="showAddExpenseForm()" class="bg-red-50 border border-red-200 p-4 rounded-xl flex flex-col items-center justify-center btn-press hover:bg-red-100">
+                            <i class="fa-solid fa-utensils text-red-600 text-xl mb-2"></i>
+                            <span class="text-xs font-medium text-red-700 text-center">Tambah<br>Pengeluaran</span>
+                        </button>
+                        
+                        <button onclick="showAddExpenseFormWithReceipt()" class="bg-gradient-to-r from-red-100 to-rose-100 border-2 border-red-300 p-4 rounded-xl flex flex-col items-center justify-center btn-press hover:from-red-200 hover:to-rose-200 relative">
+                            <i class="fa-solid fa-utensils text-red-600 text-xl mb-2"></i>
+                            <i class="fa-solid fa-camera absolute top-2 right-2 text-red-500 text-xs"></i>
+                            <span class="text-xs font-medium text-red-700 text-center">Pengeluaran<br>+ Struk</span>
+                        </button>
+                    </div>
+                    
+                    <div class="pt-3 border-t border-gray-200">
+                        <p class="text-xs text-gray-500 text-center">💡 <strong>Tips:</strong> Foto struk membantu melacak bukti transaksi dan memudahkan verifikasi</p>
+                    </div>
+                </div>
+            `);
+        }
+        
+        // ============================================
+        // UPDATE TRANSACTION LIST UNTUK MENAMPILKAN ICON STRUK
+        // ============================================
+        
+        function updateTransactionList() {
+            const list = document.getElementById('transaction-list');
+            if (!list) return;
+            
+            let filteredTransactions = appState.transactions;
+            
+            // Terapkan filter
+            if (appState.currentFilter === 'income') {
+                filteredTransactions = appState.transactions.filter(t => t.type === 'income');
+            } else if (appState.currentFilter === 'expense') {
+                filteredTransactions = appState.transactions.filter(t => t.type === 'expense');
+            } else if (appState.currentFilter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                filteredTransactions = appState.transactions.filter(t => t.date === today);
+            }
+            
+            list.innerHTML = filteredTransactions.map(trans => `
+                <button onclick="showTransactionDetail(${trans.id})" 
+                        class="w-full bg-white p-4 rounded-xl shadow-sm flex justify-between items-center hover:shadow-md transition btn-press">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 ${trans.type === 'income' ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center">
+                                <i class="fa-solid ${trans.type === 'income' ? 'fa-arrow-down text-green-600' : 'fa-arrow-up text-red-600'}"></i>
+                            </div>
+                            ${trans.hasReceipt ? `
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-camera text-white text-xs"></i>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">${trans.desc}</p>
+                            <p class="text-xs text-gray-400">${trans.category} • ${formatDate(trans.date)}</p>
+                        </div>
+                    </div>
+                    <span class="font-bold ${trans.type === 'income' ? 'text-green-600' : 'text-red-500'}">
+                        ${trans.type === 'income' ? '+' : '-'}Rp ${formatCurrency(trans.amount)}
+                    </span>
+                </button>
+            `).join('');
+            
+            document.getElementById('today-transactions').textContent = 
+                appState.transactions.filter(t => t.date === new Date().toISOString().split('T')[0]).length;
+        }
+        
+        // ============================================
+        // UPDATE TRANSACTION DETAIL UNTUK MENAMPILKAN STRUK
+        // ============================================
+        
+        function showTransactionDetail(id) {
+            const transaction = appState.transactions.find(t => t.id === id);
+            if (!transaction) return;
+        
+            const receiptSection = transaction.hasReceipt ? `
+                <div class="mt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">📸 Struk Transaksi</p>
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <img src="${transaction.receipt.dataUrl}" alt="Struk" class="w-full max-h-64 object-contain rounded-lg mb-2">
+                        <p class="text-xs text-gray-500 text-center">${transaction.receipt.filename}</p>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="viewReceiptFullscreen('${transaction.id}')" class="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg text-sm hover:bg-blue-100 btn-press">
+                                <i class="fa-solid fa-expand mr-1"></i> Perbesar
+                            </button>
+                            <button onclick="downloadReceipt('${transaction.id}')" class="flex-1 bg-green-50 text-green-600 py-2 rounded-lg text-sm hover:bg-green-100 btn-press">
+                                <i class="fa-solid fa-download mr-1"></i> Unduh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ` : '';
+        
+            showModal('Detail Transaksi', `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 ${transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center">
+                                <i class="fa-solid ${transaction.type === 'income' ? 'fa-arrow-down text-green-600' : 'fa-arrow-up text-red-600'} text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800">${transaction.desc}</p>
+                                <p class="text-sm text-gray-500">${transaction.category}</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-500'}">
+                            ${transaction.type === 'income' ? '+' : '-'}Rp ${formatCurrency(transaction.amount)}
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-xs text-gray-500">Tanggal</p>
+                            <p class="text-sm font-medium">${formatDate(transaction.date)}</p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-xs text-gray-500">Tipe</p>
+                            <p class="text-sm font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-500'}">
+                                ${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    ${receiptSection}
+                    
+                    <div class="flex gap-2">
+                        <button onclick="editTransaction(${transaction.id})" class="flex-1 border border-adamon-dark text-adamon-dark py-2 rounded-lg font-medium hover:bg-adamon-dark/5 btn-press">
+                            <i class="fa-solid fa-pen mr-1"></i> Edit
+                        </button>
+                        <button onclick="deleteTransaction(${transaction.id})" class="flex-1 border border-red-500 text-red-500 py-2 rounded-lg font-medium hover:bg-red-50 btn-press">
+                            <i class="fa-solid fa-trash mr-1"></i> Hapus
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+        
+        // ============================================
+        // FUNGSI TAMBAHAN UNTUK STRUK
+        // ============================================
+        
+        function viewReceiptFullscreen(transactionId) {
+            const transaction = appState.transactions.find(t => t.id == transactionId);
+            if (!transaction || !transaction.hasReceipt) return;
+            
+            showModal('Struk Transaksi', `
+                <div class="text-center">
+                    <img src="${transaction.receipt.dataUrl}" alt="Struk" class="w-full max-h-[60vh] object-contain rounded-lg mb-4">
+                    <div class="flex justify-between items-center text-sm text-gray-600">
+                        <span>${transaction.desc}</span>
+                        <span>${formatDate(transaction.date)}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">${transaction.receipt.filename}</p>
+                </div>
+            `);
+        }
+        
+        function downloadReceipt(transactionId) {
+            const transaction = appState.transactions.find(t => t.id == transactionId);
+            if (!transaction || !transaction.hasReceipt) return;
+            
+            showToast('Mengunduh struk...', 'info');
+            
+            // Simulasi download
+            setTimeout(() => {
+                showToast('Struk berhasil diunduh!', 'success');
+                
+                // Dalam implementasi nyata, ini akan mengunduh file
+                // const link = document.createElement('a');
+                // link.href = transaction.receipt.dataUrl;
+                // link.download = `Struk_${transaction.desc}_${transaction.date}.png`;
+                // link.click();
+            }, 1000);
+        }
+        
+        function editTransaction(id) {
+            showToast('Fitur edit transaksi dalam pengembangan', 'info');
+        }
+        
+        function deleteTransaction(id) {
+            showModal('Hapus Transaksi', `
+                <div class="space-y-4">
+                    <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                        <p class="text-sm text-red-800">
+                            ⚠️ Transaksi ini akan dihapus secara permanen.
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button onclick="confirmDeleteTransaction(${id})" class="w-full bg-red-500 text-white py-3 rounded-xl font-medium hover:bg-red-600 transition btn-press">
+                            Ya, Hapus Transaksi
+                        </button>
+                        <button onclick="closeCurrentModal()" class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition btn-press">
+                            Batalkan
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+        
+        function confirmDeleteTransaction(id) {
+            const index = appState.transactions.findIndex(t => t.id === id);
+            if (index !== -1) {
+                const transaction = appState.transactions[index];
+                
+                // Update financial data
+                if (transaction.type === 'income') {
+                    appState.financialData.income -= transaction.amount;
+                    appState.user.balance -= transaction.amount;
+                } else {
+                    appState.financialData.expense -= transaction.amount;
+                    appState.user.balance += transaction.amount;
+                }
+                
+                appState.transactions.splice(index, 1);
+                updateTransactionList();
+                updateBalance();
+                
+                closeCurrentModal();
+                showToast('Transaksi berhasil dihapus!', 'success');
             }
         }
         // ============================================
@@ -3012,6 +3550,7 @@
     </script>
 </body>
 </html>
+
 
 
 
